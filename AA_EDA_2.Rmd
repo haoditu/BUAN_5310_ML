@@ -1,7 +1,7 @@
 
 ---
 title: "BUAN_5310 Group_Project"
-author: "Florence Yan, Haodi Tu"
+author: "Florence Yan, Haodi Tu, Huibo Jia, Qiyu Ye"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
   html_document:
@@ -40,9 +40,9 @@ library(here)
 # Load data
 ## CSV file
 acs <- read.csv('airport_choice_survey_modified.csv')
-traffic <- read.csv('traffic.csv')
-province <- read.csv('province.csv')
-price <- read.csv('price.csv')
+#traffic <- read.csv('traffic.csv')
+#province <- read.csv('province.csv')
+#price <- read.csv('price.csv')
 ## XLSX file
 # acs <- read_excel("airport_choice_survey_EN_ver2.0_Capstone.xlsx", sheet = 'Data')
 # traffic <- read_excel("Airport_Airline_data.xlsx", sheet = 1)
@@ -230,47 +230,56 @@ grid.arrange(
 )
 ```
 
+
+
 ```{r}
 # Categorical Variables
 grid.arrange(
   acs %>% 
-    ggplot(aes(x = Gender, fill = Airport)) +
-    geom_bar(stat = 'identity', position = "dodge"),
+    ggplot(aes(Gender,fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = Nationality, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(Nationality, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = TripPurpose, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(TripPurpose, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = ProvinceResidence, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(ProvinceResidence, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = GroupTravel, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(GroupTravel,fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>%  
-    ggplot(aes(x = Destination, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(Destination, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = DepartureTime, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(DepartureTime, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = SeatClass, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(SeatClass, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = ModeTransport, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(ModeTransport, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>%  
-    ggplot(aes(x = Occupation, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
+    ggplot(aes(Occupation, fill = Airport)) +
+    geom_bar(position = "dodge"),
   acs %>% 
-    ggplot(aes(x = Income, fill = Airport)) +
-    geom_bar(stat = 'identity',position = "dodge"),
-  ncol = 4
+    ggplot(aes(Income, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  ncol = 3
 )
 ```
++ Observations on the categorical variables:
+  + Variable Gender, Group Travel, SeatClass have similar pattern(counts) on both airports;
+  + We can remove Gender, Group Travel, SeatClass from dependent variables.
 
 
+```{r}
+# remove Gender, Group Travel, Seat Class
+acs <- subset(acs, select = -c(Gender, GroupTravel, SeatClass))
+```
 
 ```{r}
 # Numerical
@@ -326,26 +335,33 @@ outlier(acs$AccessCost)
 outlier(acs$AccessTime)
 
 # Remove Outliers
-acs2 <- acs %>% 
+acs <- acs %>% 
   filter(Age!=70, TripDuration!=730,FlyingCompanion!=34, NoTripsLastYear!=30,Airfare!=200,NoTransport!=3, AccessCost!=350000, AccessTime!=390)
 
 ```
 
 ```{r}
 # Impute Missing Value
-# Remove categorical varaibles
-acs_mis <- subset(acs2, select = c(Age,TripDuration, FlyingCompanion, NoTripsLastYear, Airfare, NoTransport, AccessCost, AccessTime))
 
-# Replace NAs with mean
-impute(acs_mis$Age, mean)
-impute(acs_mis$TripDuration, mean)
-impute(acs_mis$FlyingCompanion, mean)
-impute(acs_mis$NoTripsLastYear, mean)
-impute(acs_mis$Airfare, mean)
-impute(acs_mis$NoTransport, mean)
-impute(acs_mis$AccessCost, mean)
-impute(acs_mis$AcessTime, mean)
+# Replace numerical variables' NAs with mean
+impute(acs$Age, mean)
+impute(acs$TripDuration, mean)
+impute(acs$FlyingCompanion, mean)
+impute(acs$NoTripsLastYear, mean)
+impute(acs$Airfare, mean)
+impute(acs$NoTransport, mean)
+impute(acs$AccessCost, mean)
+impute(acs$AcessTime, mean)
 
+# Replace categorical variables' NAs with median
+impute(acs$Nationality, median)
+impute(acs$TripPurpose, median)
+impute(acs$ProvinceResidence, median)
+impute(acs$Destination, median)
+impute(acs$DepartureTime, median)
+impute(acs$ModeTransport, median)
+impute(acs$Occupation, median)
+impute(acs$Income, median)
 ```
 
 
