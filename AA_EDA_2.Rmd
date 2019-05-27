@@ -137,6 +137,105 @@ acs$Income <-as.factor(acs$Income)
 ``` 
 
 
+
+```{r}
+# Impute Missing Value
+
+# Replace numerical variables' NAs with mean
+impute(acs$Age, mean)
+impute(acs$TripDuration, mean)
+impute(acs$FlyingCompanion, mean)
+impute(acs$NoTripsLastYear, mean)
+impute(acs$Airfare, mean)
+impute(acs$NoTransport, mean)
+impute(acs$AccessCost, mean)
+impute(acs$AcessTime, mean)
+
+# Replace categorical variables' NAs with median
+impute(acs$Nationality, median)
+impute(acs$TripPurpose, median)
+impute(acs$ProvinceResidence, median)
+impute(acs$Destination, median)
+impute(acs$DepartureTime, median)
+impute(acs$ModeTransport, median)
+impute(acs$Occupation, median)
+impute(acs$Income, median)
+```
+
+
+```{r}
+# Treat outliers
+# reference: https://stackoverflow.com/questions/4787332/how-to-remove-outliers-from-a-dataset
+remove_outliers <- function(x, na.rm = TRUE, ...) {
+  qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+  H <- 1.5 * IQR(x, na.rm = na.rm)
+  y <- x
+  y[x < (qnt[1] - H)] <- NA
+  y[x > (qnt[2] + H)] <- NA
+  y
+}
+y <- remove_outliers(acs$Age)
+par(mfrow = c(1, 2))
+boxplot(acs$Age)
+boxplot(y)
+
+y <- remove_outliers(acs$TripDuration)
+par(mfrow = c(1, 2))
+boxplot(acs$TripDuration)
+boxplot(y)
+
+y <- remove_outliers(acs$FlyingCompanion)
+par(mfrow = c(1, 2))
+boxplot(acs$FlyingCompanion)
+boxplot(y)
+
+y <- remove_outliers(acs$NoTripsLastYear)
+par(mfrow = c(1, 2))
+boxplot(acs$NoTripsLastYear)
+boxplot(y)
+
+y <- remove_outliers(acs$Airfare)
+par(mfrow = c(1, 2))
+boxplot(acs$Airfare)
+boxplot(y)
+
+y <- remove_outliers(acs$NoTransport)
+par(mfrow = c(1, 2))
+boxplot(acs$NoTransport)
+boxplot(y)
+
+y <- remove_outliers(acs$AccessCost)
+par(mfrow = c(1, 2))
+boxplot(acs$AccessCost)
+boxplot(y)
+
+y <- remove_outliers(acs$AccessTime)
+par(mfrow = c(1, 2))
+boxplot(acs$AccessTime)
+boxplot(y)
+
+summary(acs)
+```
+
+```{r}
+
+# # Outliers - numerical
+# outlier(acs$Age)
+# outlier(acs$TripDuration)
+# outlier(acs$FlyingCompanion)
+# outlier(acs$NoTripsLastYear)
+# outlier(acs$Airfare)
+# outlier(acs$NoTransport)
+# outlier(acs$AccessCost)
+# outlier(acs$AccessTime)
+# 
+# # Remove Outliers
+# acs <- acs %>% 
+#   filter(Age != 80, TripDuration != 730,FlyingCompanion != 34, NoTripsLastYear != 122,Airfare != 260,NoTransport != 4, AccessCost != 350000, AccessTime != 390)
+```
+
+
+
 ```{r}
 # Data Vis
 ## Categorical
@@ -319,49 +418,6 @@ cor_plot <- acs %>%
   select(Age, TripDuration, FlyingCompanion, NoTripsLastYear, NoTransport, Airfare, AccessCost, AccessTime)
 cor_plot %>%
   ggpairs()
-```
-
-
-
-```{r}
-# Outliers - numerical
-outlier(acs$Age)
-outlier(acs$TripDuration)
-outlier(acs$FlyingCompanion)
-outlier(acs$NoTripsLastYear)
-outlier(acs$Airfare)
-outlier(acs$NoTransport)
-outlier(acs$AccessCost)
-outlier(acs$AccessTime)
-
-# Remove Outliers
-acs <- acs %>% 
-  filter(Age!=70, TripDuration!=730,FlyingCompanion!=34, NoTripsLastYear!=30,Airfare!=200,NoTransport!=3, AccessCost!=350000, AccessTime!=390)
-
-```
-
-```{r}
-# Impute Missing Value
-
-# Replace numerical variables' NAs with mean
-impute(acs$Age, mean)
-impute(acs$TripDuration, mean)
-impute(acs$FlyingCompanion, mean)
-impute(acs$NoTripsLastYear, mean)
-impute(acs$Airfare, mean)
-impute(acs$NoTransport, mean)
-impute(acs$AccessCost, mean)
-impute(acs$AcessTime, mean)
-
-# Replace categorical variables' NAs with median
-impute(acs$Nationality, median)
-impute(acs$TripPurpose, median)
-impute(acs$ProvinceResidence, median)
-impute(acs$Destination, median)
-impute(acs$DepartureTime, median)
-impute(acs$ModeTransport, median)
-impute(acs$Occupation, median)
-impute(acs$Income, median)
 ```
 
 
