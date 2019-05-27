@@ -1,0 +1,415 @@
+
+---
+title: "BUAN_5310 Group_Project"
+author: "Florence Yan, Haodi Tu"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+```{r message = FALSE, echo = FALSE, error = FALSE}
+# Clear environment of variables and functions
+rm(list = ls(all = TRUE)) 
+# Clear environmet of packages
+if(is.null(sessionInfo()$otherPkgs) == FALSE)lapply(paste("package:", names(sessionInfo()$otherPkgs), sep=""), detach, character.only = TRUE, unload = TRUE)
+```
+
+
+# 1. Data Loading and Preperation
+```{r message = FALSE, echo = FALSE, error = FALSE}
+library(tidyverse)
+library(GGally)
+library(ggplot2)
+library(readxl)
+library(kableExtra)
+library(gridExtra)
+library(outliers)
+library(Hmisc)
+library(here)
+```
+
+
+```{r}
+# Load data
+## CSV file
+acs <- read.csv('airport_choice_survey_modified.csv')
+traffic <- read.csv('traffic.csv')
+province <- read.csv('province.csv')
+price <- read.csv('price.csv')
+## XLSX file
+# acs <- read_excel("airport_choice_survey_EN_ver2.0_Capstone.xlsx", sheet = 'Data')
+# traffic <- read_excel("Airport_Airline_data.xlsx", sheet = 1)
+# province <- read_excel("Airport_Airline_data.xlsx", sheet = 3)
+# price <- read_excel("Airport_Airline_data.xlsx", sheet = 2)
+```
+
+
+```{r}
+# Rename columns in R
+names(acs)[1]<-"ID"
+names(price)[1] <- "Airport"
+names(province)[1] <- "Airport"
+names(province)[4] <- "Travel.time.min"
+names(traffic)[1] <- "Airport"
+```
+
+
+```{r}
+str(acs)
+summary(acs)
+```
+
++ Data type transfermation:
+    + Seventeen character variables (ID excluded) and ten numerical variables
+    
+    + Numeric to factor: Airport, Airline, Gender, Nationality, TripPurpose, ProvinceResidence, GroupTravel, Destination, DepartureTime, SeatClass, ModeTransport, Occupation, Income
+    
++ Missing values 
+    + Eliminate missing values from Airline, age, gender, destination, Airfare, AccessCost, AccessTime
+
++ Remove unwanted variables
+    + FlightNo: Don't match any other variables from data;
+    + DepartureHr: Departure time;
+    + DepartureMn: Departure tume; too many missing values;
+    + MileageAireline: Too many missing values
+    + Mileage: Too many missing values
+    
++ Observations on the data:
+  + 170 observations after eliminating missing values (originally 488);
+  + Airport: more choice on GMP (49-83);
+  + Airline: KE the most, OZ the least (41-26);
+  + Most are middle age people;
+  + Equivalent gender distribution (70-62);
+  + The majorities are Koreans;
+  + The mahorities travel for leisure;
+  + Trip duration is highly positively skewed;
+  + The number of flying companions is positively skewed; most groups are under 3 members;
+  + The majorities are from Seoul;
+  + The majorities are NOT travel in group;
+  + The number of trips last year is positively skewed; most people traveled less than 3 times last year;
+  + Most people fly to Southeast Asia and Japan;
+  + Most people choose the departure time between 12pm - 6pm;
+  + The majorities take economy class;
+  + Airfare is positively skewed; there are outliers on both sides;
+  + Most people take 1 transport to the airport;
+  + The majorities take public transportations such as Airport Limousine and Subway;
+  + Access cost is highly positively skewed; there are outliers on bothe sides;
+  + Most people are business workers;
+  + Most people's income are from 30 ~ 80 Million Won;
+  + The majorities are either KE memberships or none;
+  
+  + Categorical: Airport, Aireline, Gender, Nationality, TripPurpose, ProvinceRsidence, GroupTravel, Destination,     DepartureTime, SeatClass, ModeTransportation, Occupation, Income
+  
+  + Numerical: Age, TripDuration, FlyingCompanion, NoTripLastYeaar, Airfare, NoTranport, AccessCost, AccessTime
+    
+
+```{r}
+# Remove ID column
+acs <- select(acs, -1)
+
+# Remove unwanted variables: FlightNo, FrequentFlightDestination, DepartureHr, DepartureMn, Mileage, MileageAireline
+acs <- acs[ , -c(12, 14:16, 26,27) ]
+```
+
+
+```{r}
+# Convert data type 
+acs$Airport <- as.factor(acs$Airport)
+acs$Airline <- as.factor(acs$Airline)
+acs$Gender <- as.factor(acs$Gender)
+acs$Nationality <-as.factor(acs$Nationality)
+acs$TripPurpose <-as.factor(acs$TripPurpose)
+acs$ProvinceResidence <-as.factor(acs$ProvinceResidence)
+acs$GroupTravel <-as.factor(acs$GroupTravel)
+acs$Destination <-as.factor(acs$Destination)
+acs$DepartureTime <-as.factor(acs$DepartureTime)
+acs$SeatClass <-as.factor(acs$SeatClass)
+acs$ModeTransport <-as.factor(acs$ModeTransport)
+acs$Occupation <-as.factor(acs$Occupation)
+acs$Income <-as.factor(acs$Income)
+``` 
+
+
+```{r}
+# Data Vis
+## Categorical
+airport <- acs %>% 
+  group_by(Airport) %>% 
+  summarise(count= n())
+airline <- acs %>% 
+  group_by(Airline) %>% 
+  summarise(count= n())
+age <- acs %>% 
+  group_by(Age) %>% 
+  summarise(count= n())
+gender <- acs %>% 
+  group_by(Gender) %>% 
+  summarise(count= n())
+nationality <- acs %>% 
+  group_by(Nationality) %>% 
+  summarise(count= n())
+trippurpose <- acs %>% 
+  group_by(TripPurpose) %>% 
+  summarise(count= n())
+provinceresidence <- acs %>% 
+  group_by(ProvinceResidence) %>% 
+  summarise(count= n())
+grouptravel <- acs %>% 
+  group_by(GroupTravel) %>% 
+  summarise(count= n())
+destination <- acs %>% 
+  group_by(Destination) %>% 
+  summarise(count= n())
+departuretime <- acs %>% 
+  group_by(DepartureTime) %>% 
+  summarise(count= n())
+seatclass <- acs %>% 
+  group_by(SeatClass) %>% 
+  summarise(count= n())
+modetrans <- acs %>% 
+  group_by(ModeTransport) %>% 
+  summarise(count= n())
+occupation <- acs %>% 
+  group_by(Occupation) %>% 
+  summarise(count= n())
+income <- acs %>% 
+  group_by(Income) %>% 
+  summarise(count= n())
+```
+
+
+```{r}
+grid.arrange(
+  airport %>% 
+    ggplot(aes(x = Airport, y = count)) +
+    geom_bar(stat = 'identity'),
+  airline %>% 
+    ggplot(aes(x = Airline, y = count)) +
+    geom_bar(stat = 'identity'),
+  gender %>% 
+    ggplot(aes(x = Gender, y = count)) +
+    geom_bar(stat = 'identity'),
+  nationality %>% 
+    ggplot(aes(x = Nationality, y = count)) +
+    geom_bar(stat = 'identity'),
+  trippurpose %>% 
+    ggplot(aes(x = TripPurpose, y = count)) +
+    geom_bar(stat = 'identity'),
+  provinceresidence %>% 
+    ggplot(aes(x = ProvinceResidence, y = count)) +
+    geom_bar(stat = 'identity'),
+  grouptravel %>% 
+    ggplot(aes(x = GroupTravel, y = count)) +
+    geom_bar(stat = 'identity'),
+  destination %>% 
+    ggplot(aes(x = Destination, y = count)) +
+    geom_bar(stat = 'identity'),
+  departuretime %>% 
+    ggplot(aes(x = DepartureTime, y = count)) +
+    geom_bar(stat = 'identity'),
+  seatclass %>% 
+    ggplot(aes(x = SeatClass, y = count)) +
+    geom_bar(stat = 'identity'),
+  modetrans %>% 
+    ggplot(aes(x = ModeTransport, y = count)) +
+    geom_bar(stat = 'identity'),
+  occupation %>% 
+    ggplot(aes(x = Occupation, y = count)) +
+    geom_bar(stat = 'identity'),
+  income %>% 
+    ggplot(aes(x = Income, y = count)) +
+    geom_bar(stat = 'identity'),
+  ncol = 4
+)
+```
+
+```{r}
+# Categorical Variables
+grid.arrange(
+  acs %>% 
+    ggplot(aes(x = Gender, fill = Airport)) +
+    geom_bar(stat = 'identity', position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = Nationality, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = TripPurpose, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = ProvinceResidence, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = GroupTravel, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>%  
+    ggplot(aes(x = Destination, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = DepartureTime, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = SeatClass, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = ModeTransport, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>%  
+    ggplot(aes(x = Occupation, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  acs %>% 
+    ggplot(aes(x = Income, fill = Airport)) +
+    geom_bar(stat = 'identity',position = "dodge"),
+  ncol = 4
+)
+```
+
+
+
+```{r}
+# Numerical
+grid.arrange(
+  acs %>% 
+    ggplot(aes(Age)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(TripDuration)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(FlyingCompanion)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(NoTripsLastYear)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(Airfare)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(NoTransport)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(AccessCost)) +
+    geom_histogram(),
+  acs %>% 
+    ggplot(aes(AccessTime)) +
+    geom_histogram(),
+  ncol = 2
+)
+```
+
+
+```{r}
+# Correlation plot
+cor_plot <- acs %>%
+  select(Age, TripDuration, FlyingCompanion, NoTripsLastYear, NoTransport, Airfare, AccessCost, AccessTime)
+cor_plot %>%
+  ggpairs()
+```
+
+
+
+```{r}
+# Outliers - numerical
+outlier(acs$Age)
+outlier(acs$TripDuration)
+outlier(acs$FlyingCompanion)
+outlier(acs$NoTripsLastYear)
+outlier(acs$Airfare)
+outlier(acs$NoTransport)
+outlier(acs$AccessCost)
+outlier(acs$AccessTime)
+
+# Remove Outliers
+acs2 <- acs %>% 
+  filter(Age!=70, TripDuration!=730,FlyingCompanion!=34, NoTripsLastYear!=30,Airfare!=200,NoTransport!=3, AccessCost!=350000, AccessTime!=390)
+
+```
+
+```{r}
+# Impute Missing Value
+# Remove categorical varaibles
+acs_mis <- subset(acs2, select = c(Age,TripDuration, FlyingCompanion, NoTripsLastYear, Airfare, NoTransport, AccessCost, AccessTime))
+
+# Replace NAs with mean
+impute(acs_mis$Age, mean)
+impute(acs_mis$TripDuration, mean)
+impute(acs_mis$FlyingCompanion, mean)
+impute(acs_mis$NoTripsLastYear, mean)
+impute(acs_mis$Airfare, mean)
+impute(acs_mis$NoTransport, mean)
+impute(acs_mis$AccessCost, mean)
+impute(acs_mis$AcessTime, mean)
+
+```
+
+
+
+```{r}
+# airline with all numerical variables
+airline_num <- acs %>% 
+  group_by(Airline) %>% 
+  summarise(count = n(),
+  mean_age = mean(Age),
+  mean_tripdu = mean(TripDuration),
+  mean_flycom = mean(FlyingCompanion),
+  mean_notrip = mean(NoTripsLastYear),
+  mean_airfare = mean(Airfare),
+  mean_noTrans = mean(NoTransport),
+  mean_accessc = mean(AccessCost),
+  mean_accesst = mean(AccessTime)
+  ) %>% 
+  arrange(desc(count))
+
+airline_num
+
+airline_num_table <- kable(airline_num) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+airline_num_table
+```
+
+
+```{r}
+# airport with all numerical variables
+airport_num <- acs %>% 
+  group_by(Airport) %>% 
+  summarise(count = n(),
+  mean_age = mean(Age),
+  mean_tripdu = mean(TripDuration),
+  mean_flycom = mean(FlyingCompanion),
+  mean_notrip = mean(NoTripsLastYear),
+  mean_airfare = mean(Airfare),
+  mean_noTrans = mean(NoTransport),
+  mean_accessc = mean(AccessCost),
+  mean_accesst = mean(AccessTime)
+  ) %>% 
+  arrange(desc(count))
+
+airport_num
+
+airport_num_table <- kable(airport_num) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+airport_num_table
+```
+
+
+
+```{r}
+# Write CSV in R
+# write.csv(acs, file = "acs.csv")
+```
+
+
+
+
+
+
+
+
