@@ -1,0 +1,32 @@
+digraph Tree {
+node [shape=box] ;
+0 [label="Destination <= 2.5\ngini = 0.441\nsamples = 119\nvalue = [39, 80]"] ;
+1 [label="TripDuration <= 9.5\ngini = 0.308\nsamples = 84\nvalue = [16, 68]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="Airfare <= 28.5\ngini = 0.236\nsamples = 66\nvalue = [9, 57]"] ;
+1 -> 2 ;
+3 [label="gini = 0.48\nsamples = 10\nvalue = [4, 6]"] ;
+2 -> 3 ;
+4 [label="ModeTransport <= 5.5\ngini = 0.163\nsamples = 56\nvalue = [5, 51]"] ;
+2 -> 4 ;
+5 [label="FlyingCompanion <= 2.5\ngini = 0.044\nsamples = 44\nvalue = [1, 43]"] ;
+4 -> 5 ;
+6 [label="gini = 0.0\nsamples = 30\nvalue = [0, 30]"] ;
+5 -> 6 ;
+7 [label="gini = 0.133\nsamples = 14\nvalue = [1, 13]"] ;
+5 -> 7 ;
+8 [label="gini = 0.444\nsamples = 12\nvalue = [4, 8]"] ;
+4 -> 8 ;
+9 [label="gini = 0.475\nsamples = 18\nvalue = [7, 11]"] ;
+1 -> 9 ;
+10 [label="DepartureTime <= 1.5\ngini = 0.451\nsamples = 35\nvalue = [23, 12]"] ;
+0 -> 10 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+11 [label="gini = 0.18\nsamples = 10\nvalue = [1, 9]"] ;
+10 -> 11 ;
+12 [label="Gender <= 1.5\ngini = 0.211\nsamples = 25\nvalue = [22, 3]"] ;
+10 -> 12 ;
+13 [label="gini = 0.0\nsamples = 15\nvalue = [15, 0]"] ;
+12 -> 13 ;
+14 [label="gini = 0.42\nsamples = 10\nvalue = [7, 3]"] ;
+12 -> 14 ;
+}
