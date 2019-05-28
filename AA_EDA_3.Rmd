@@ -217,7 +217,7 @@ outlier(acs_na$AccessTime)
 # 
 # Remove Outliers
 acs_out <- acs_na %>%
-  filter(Age != 80, TripDuration != 730,FlyingCompanion != 34, NoTripsLastYear != 122,Airfare != 260,NoTransport != 4, AccessCost != 350000, AccessTime != 390)
+  filter(TripDuration != 730,FlyingCompanion != 34, NoTripsLastYear != 122,Airfare != 260,NoTransport != 4, AccessCost != 350000, AccessTime != 390)
 ```
 
 
@@ -401,7 +401,7 @@ grid.arrange(
 ```
 + Observations on the categorical variables (airport):
   + Variable Gender, Group Travel, SeatClass have similar pattern(counts) on both airports;
-  + We can remove Gender, Group Travel, SeatClass from dependent variables.
+  + We can remove Gender, Group Travel, SeatClass from independent variables.
 
 ```{r}
 # remove Gender, Group Travel, Seat Class
@@ -411,7 +411,7 @@ acs_ap <- subset(acs_out, select = -c(Gender, GroupTravel, SeatClass))
 
 
 ```{r}
-# Categorical Variables - Airport
+# Categorical Variables - Airline
 grid.arrange(
   acs_out %>% 
     ggplot(aes(Gender,fill = Airline)) +
