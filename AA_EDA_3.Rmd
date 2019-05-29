@@ -328,50 +328,18 @@ do.call(grid.arrange,plots)
 
 ```{r}
 # Categorical Variables - Airport
-grid.arrange(
-  acs_out %>% 
-    ggplot(aes(Gender,fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Age,fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Nationality, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(TripPurpose, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(ProvinceResidence, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(GroupTravel,fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>%  
-    ggplot(aes(Destination, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(DepartureTime, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(SeatClass, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(ModeTransport, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>%  
-    ggplot(aes(Occupation, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Income, fill = Airport)) +
-    geom_bar(position = "dodge"),
-  ncol = 3
-)
+plots <- list()
+for(nm in names(Filter(is.factor, acs_out))) {
+    plots[[nm]] <- ggplot(data = acs_out,aes(fill = Airport))+ geom_bar(position = "dodge",aes_string(x=nm)) 
+}
+
+do.call(grid.arrange,plots[-c(1,2)])
 ```
+
 + Observations on the categorical variables (airport):
   + Variable Gender, Group Travel, SeatClass have similar pattern(counts) on both airports;
   + We can remove Gender, Group Travel, SeatClass from independent variables.
-
+  
 ```{r}
 # remove Gender, Group Travel, Seat Class
 # Airport Model
@@ -381,45 +349,13 @@ acs_ap <- subset(acs_out, select = -c(Gender, GroupTravel, SeatClass))
 
 ```{r}
 # Categorical Variables - Airline
-grid.arrange(
-  acs_out %>% 
-    ggplot(aes(Gender,fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Age,fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Nationality, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(TripPurpose, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(ProvinceResidence, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(GroupTravel,fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>%  
-    ggplot(aes(Destination, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(DepartureTime, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(SeatClass, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(ModeTransport, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>%  
-    ggplot(aes(Occupation, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  acs_out %>% 
-    ggplot(aes(Income, fill = Airline)) +
-    geom_bar(position = "dodge"),
-  ncol = 3
-)
+plots <- list()
+for(nm in names(Filter(is.factor, acs_out))) {
+    plots[[nm]] <- ggplot(data = acs_out,aes(fill = Airline))+ geom_bar(position = "dodge",aes_string(x=nm)) 
+}
+
+do.call(grid.arrange,plots[-c(1,2)])
+
 ```
 
 + Observations on the categorical variables (airline):
