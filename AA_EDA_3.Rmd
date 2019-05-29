@@ -136,8 +136,11 @@ acs <- acs[!is.na(acs$Gender),]
 acs <- acs[!is.na(acs$Destination),]
 acs <- acs[!is.na(acs$SeatClass),]
 
+# Replace categorical variables with KNN
+acs_na <- knnImputation(acs)
+
 # Replace numerical variables' NAs with mean
-acs <- acs %>% group_by(Airport, Airline,Destination) %>% mutate(Airfare_avg = mean(Airfare,na.rm=T))
+acs <- acs %>% group_by(Airport, Airline, Destination) %>% mutate(Airfare_avg = mean(Airfare,na.rm=T))
 acs$Airfare[is.na(acs$Airfare)] <- acs$Airfare_avg[is.na(acs$Airfare)]
 
 #acs$Airfare[is.na(acs$Airfare)] <- mean(acs$Airfare, na.rm = T)
@@ -152,8 +155,7 @@ acs$AccessCost[is.na(acs$AccessCost)] <- mean(acs$AccessCost, na.rm = T)
 # impute(acs$AccessCost, mean)
 # impute(acs$AcessTime, mean)
 
-# Replace categorical variables with KNN
-acs_na <- knnImputation(acs)
+
 
 # Check NA
 anyNA(acs_na)
