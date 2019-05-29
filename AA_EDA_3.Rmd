@@ -240,7 +240,7 @@ summary(acs_out)
   + Most are people under or equal to 50 years old;
   + Equivalent gender distribution (220-249);
   + The majorities are Koreans;
-  + The mahorities travel for leisure;
+  + The majorities travel for leisure;
   + Trip duration is highly positively skewed;
   + The number of flying companions is positively skewed; most groups are under 3 members;
   + The majorities are from Seoul;
@@ -314,54 +314,16 @@ income <- acs_out %>%
 ```
 
 
-```{r}
-grid.arrange(
-  airport %>% 
-    ggplot(aes(x = Airport, y = count)) +
-    geom_bar(stat = 'identity'),
-  age %>% 
-    ggplot(aes(x = Age, y = count)) +
-    geom_bar(stat = 'identity'),
-  airline %>% 
-    ggplot(aes(x = Airline, y = count)) +
-    geom_bar(stat = 'identity'),
-  gender %>% 
-    ggplot(aes(x = Gender, y = count)) +
-    geom_bar(stat = 'identity'),
-  nationality %>% 
-    ggplot(aes(x = Nationality, y = count)) +
-    geom_bar(stat = 'identity'),
-  trippurpose %>% 
-    ggplot(aes(x = TripPurpose, y = count)) +
-    geom_bar(stat = 'identity'),
-  provinceresidence %>% 
-    ggplot(aes(x = ProvinceResidence, y = count)) +
-    geom_bar(stat = 'identity'),
-  grouptravel %>% 
-    ggplot(aes(x = GroupTravel, y = count)) +
-    geom_bar(stat = 'identity'),
-  destination %>% 
-    ggplot(aes(x = Destination, y = count)) +
-    geom_bar(stat = 'identity'),
-  departuretime %>% 
-    ggplot(aes(x = DepartureTime, y = count)) +
-    geom_bar(stat = 'identity'),
-  seatclass %>% 
-    ggplot(aes(x = SeatClass, y = count)) +
-    geom_bar(stat = 'identity'),
-  modetrans %>% 
-    ggplot(aes(x = ModeTransport, y = count)) +
-    geom_bar(stat = 'identity'),
-  occupation %>% 
-    ggplot(aes(x = Occupation, y = count)) +
-    geom_bar(stat = 'identity'),
-  income %>% 
-    ggplot(aes(x = Income, y = count)) +
-    geom_bar(stat = 'identity'),
-  ncol = 4
-)
-```
 
+```{r}
+# plot categorial variables
+plots <- list()
+for(nm in names(Filter(is.factor, acs_out))) {
+    plots[[nm]] <- ggplot(data = acs_out) + geom_bar(aes_string(x=nm))
+}
+
+do.call(grid.arrange,plots)
+```
 
 
 ```{r}
