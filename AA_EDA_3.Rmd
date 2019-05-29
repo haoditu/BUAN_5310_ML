@@ -97,15 +97,11 @@ acs <- select(acs, -1)
 acs <- acs[ , -c(12, 14:16, 26,27) ]
 ```
 
-```{r}
-str(acs)
-```
 
 ```{r}
 # Convert data type 
 names <- c(1:6,9,10,12:14,17,20,21)
 acs[,names] <- lapply(acs[,names] , factor)
-str(acs)
 
 # acs$Age <- as.factor(acs$Age)
 # acs$Airport <- as.factor(acs$Airport)
@@ -121,7 +117,7 @@ str(acs)
 # acs$ModeTransport <-as.factor(acs$ModeTransport)
 # acs$Occupation <-as.factor(acs$Occupation)
 # acs$Income <-as.factor(acs$Income)
-str(acs)
+
 summary(acs)
 ``` 
 
