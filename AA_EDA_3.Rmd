@@ -33,6 +33,7 @@ library(outliers)
 library(Hmisc)
 library(DMwR)
 library(here)
+library(dplyr)
 ```
 
 
@@ -40,9 +41,9 @@ library(here)
 # Load data
 ## CSV file
 acs <- read.csv('airport_choice_survey_modified.csv')
-#traffic <- read.csv('traffic.csv')
-#province <- read.csv('province.csv')
-#price <- read.csv('price.csv')
+traffic <- read.csv('traffic.csv')
+province <- read.csv('province.csv')
+price <- read.csv('price.csv')
 ## XLSX file
 # acs <- read_excel("airport_choice_survey_EN_ver2.0_Capstone.xlsx", sheet = 'Data')
 # traffic <- read_excel("Airport_Airline_data.xlsx", sheet = 1)
@@ -100,31 +101,27 @@ acs <- acs[ , -c(12, 14:16, 26,27) ]
 
 ```{r}
 # Convert data type 
-names <- c(1:6,9,10,12:14,17,20,21)
-acs[,names] <- lapply(acs[,names] , factor)
-
-# acs$Age <- as.factor(acs$Age)
-# acs$Airport <- as.factor(acs$Airport)
-# acs$Airline <- as.factor(acs$Airline)
-# acs$Gender <- as.factor(acs$Gender)
-# acs$Nationality <-as.factor(acs$Nationality)
-# acs$TripPurpose <-as.factor(acs$TripPurpose)
-# acs$ProvinceResidence <-as.factor(acs$ProvinceResidence)
-# acs$GroupTravel <-as.factor(acs$GroupTravel)
-# acs$Destination <-as.factor(acs$Destination)
-# acs$DepartureTime <-as.factor(acs$DepartureTime)
-# acs$SeatClass <-as.factor(acs$SeatClass)
-# acs$ModeTransport <-as.factor(acs$ModeTransport)
-# acs$Occupation <-as.factor(acs$Occupation)
-# acs$Income <-as.factor(acs$Income)
+acs$Age <- as.factor(acs$Age)
+acs$Airport <- as.factor(acs$Airport)
+acs$Airline <- as.factor(acs$Airline)
+acs$Gender <- as.factor(acs$Gender)
+acs$Nationality <-as.factor(acs$Nationality)
+acs$TripPurpose <-as.factor(acs$TripPurpose)
+acs$ProvinceResidence <-as.factor(acs$ProvinceResidence)
+acs$GroupTravel <-as.factor(acs$GroupTravel)
+acs$Destination <-as.factor(acs$Destination)
+acs$DepartureTime <-as.factor(acs$DepartureTime)
+acs$SeatClass <-as.factor(acs$SeatClass)
+acs$ModeTransport <-as.factor(acs$ModeTransport)
+acs$Occupation <-as.factor(acs$Occupation)
+acs$Income <-as.factor(acs$Income)
 
 summary(acs)
 ``` 
-
 + Missing values 
     + Airline(10); Age(1); Gender(3); Destination(4); SeatClass(4); Airfare(86); AccessCost(97); Income(132)
-    + Remove missing values from age, gender, destination, seatclass;
-    + Impute NA in airline(categorial), airfare(numerical), accessCost(numerical), income(categorial)
+    + Remove missing values from age, airline, gender, destination, seatclass;
+    + Impute NA in airfare(numerical), accessCost(numerical), income(categorial)
 
 
 ```{r}
@@ -132,99 +129,88 @@ summary(acs)
 
 # Remove
 acs <- acs[!is.na(acs$Age),]
+acs <- acs[!is.na(acs$Airline),]
 acs <- acs[!is.na(acs$Gender),]
 acs <- acs[!is.na(acs$Destination),]
 acs <- acs[!is.na(acs$SeatClass),]
 
-# Replace categorical variables with KNN
-acs_na <- knnImputation(acs)
+# Replace numerical variables' NAs with means by groups
+## Get means by groups
+acs_airfare_na <- acs %>% 
+    group_by(Airport, Airline, Destination) %>%
+    dplyr::summarize(Airfare = mean(Airfare, na.rm=TRUE))
 
-# Replace numerical variables' NAs with mean
-acs <- acs %>% group_by(Airport, Airline, Destination) %>% mutate(Airfare_avg = mean(Airfare,na.rm=T))
-acs$Airfare[is.na(acs$Airfare)] <- acs$Airfare_avg[is.na(acs$Airfare)]
+acs_accesscost_na <- acs %>% 
+    group_by(Airport, ProvinceResidence, AccessTime) %>%
+    dplyr::summarize(AccessCost = mean(AccessCost, na.rm=TRUE))
 
-#acs$Airfare[is.na(acs$Airfare)] <- mean(acs$Airfare, na.rm = T)
-acs$AccessCost[is.na(acs$AccessCost)] <- mean(acs$AccessCost, na.rm = T)
+acs_accesscost_na2 <- acs %>% 
+    group_by(Airport, ProvinceResidence) %>%
+    dplyr::summarize(AccessCost = mean(AccessCost, na.rm=TRUE))
 
-# impute(acs$Age, mean)
-# impute(acs$TripDuration, mean)
-# impute(acs$FlyingCompanion, mean)
-# impute(acs$NoTripsLastYear, mean)
-# impute(acs$Airfare, mean)
-# impute(acs$NoTransport, mean)
-# impute(acs$AccessCost, mean)
-# impute(acs$AcessTime, mean)
-
+# Export data for manually imputing NAs
+#write.csv(acs, file = "acs_na.csv")
+```
 
 
-# Check NA
-anyNA(acs_na)
+```{r}
+# Read acs_na
+acs_na <- read.csv('acs_na.csv')
 
+acs_na$Age <- as.factor(acs$Age)
+acs_na$Airport <- as.factor(acs$Airport)
+acs_na$Airline <- as.factor(acs$Airline)
+acs_na$Gender <- as.factor(acs$Gender)
+acs_na$Nationality <-as.factor(acs$Nationality)
+acs_na$TripPurpose <-as.factor(acs$TripPurpose)
+acs_na$ProvinceResidence <-as.factor(acs$ProvinceResidence)
+acs_na$GroupTravel <-as.factor(acs$GroupTravel)
+acs_na$Destination <-as.factor(acs$Destination)
+acs_na$DepartureTime <-as.factor(acs$DepartureTime)
+acs_na$SeatClass <-as.factor(acs$SeatClass)
+acs_na$ModeTransport <-as.factor(acs$ModeTransport)
+acs_na$Occupation <-as.factor(acs$Occupation)
+acs_na$Income <-as.factor(acs$Income)
+
+# Remove NAs in airfare
+acs_na <- acs_na[!is.na(acs_na$Airfare),]
+
+acs_na <- acs_na[!is.na(acs_na$AccessCost),]
+
+# 468 observations
 summary(acs_na)
 ```
 
 
 ```{r}
-# Treat outliers
-# reference: https://stackoverflow.com/questions/4787332/how-to-remove-outliers-from-a-dataset
-# remove_outliers <- function(x, na.rm = TRUE, ...) {
-#   qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
-#   H <- 1.5 * IQR(x, na.rm = na.rm)
-#   y <- x
-#   y[x < (qnt[1] - H)] <- NA
-#   y[x > (qnt[2] + H)] <- NA
-#   y
-# }
-# y <- remove_outliers(acs$Age)
-# par(mfrow = c(1, 2))
-# boxplot(acs$Age)
-# boxplot(y)
-# y <- remove_outliers(acs$TripDuration)
-# par(mfrow = c(1, 2))
-# boxplot(acs$TripDuration)
-# boxplot(y)
-# y <- remove_outliers(acs$FlyingCompanion)
-# par(mfrow = c(1, 2))
-# boxplot(acs$FlyingCompanion)
-# boxplot(y)
-# y <- remove_outliers(acs$NoTripsLastYear)
-# par(mfrow = c(1, 2))
-# boxplot(acs$NoTripsLastYear)
-# boxplot(y)
-# y <- remove_outliers(acs$Airfare)
-# par(mfrow = c(1, 2))
-# boxplot(acs$Airfare)
-# boxplot(y)
-# y <- remove_outliers(acs$NoTransport)
-# par(mfrow = c(1, 2))
-# boxplot(acs$NoTransport)
-# boxplot(y)
-# y <- remove_outliers(acs$AccessCost)
-# par(mfrow = c(1, 2))
-# boxplot(acs$AccessCost)
-# boxplot(y)
-# y <- remove_outliers(acs$AccessTime)
-# par(mfrow = c(1, 2))
-# boxplot(acs$AccessTime)
-# boxplot(y)
+# Regroup NAs in categorical variables (Income Millon Won)
+acs_na[21] <- ifelse(acs_na[21] == 1, '<=30',
+                (ifelse(acs_na[21] == 2, '30~80',
+                  (ifelse(acs_na[21] == 3, '30~80',
+                       (ifelse(acs_na[21] == 4, '80~150',   
+                               (ifelse(acs_na[3] == 5, '80~150',
+                                       (ifelse(acs_na[3] == 'NA', 'NA','150~200>')))))))))))
+acs_na$Income[is.na(acs_na$Income)] <- 0
 
-# summary(acs)
+anyNA(acs_na)
+summary(acs_na)
 ```
 
 
 ```{r}
+# check observation numbers first! too low? dont drop
 # Outliers - numerical
 outlier(acs_na$TripDuration)
 outlier(acs_na$FlyingCompanion)
-outlier(acs_na$NoTripsLastYear)
+outlier(acs_na$NoTripsLastYear) 
 outlier(acs_na$Airfare)
 outlier(acs_na$NoTransport)
 outlier(acs_na$AccessCost)
 outlier(acs_na$AccessTime)
-# 
+
 # Remove Outliers
 acs_out <- acs_na %>%
-  filter(TripDuration != 730,FlyingCompanion != 34, NoTripsLastYear != 122,Airfare != 260,NoTransport != 4, AccessCost != 350000, AccessTime != 390)
+  filter(TripDuration != 730,FlyingCompanion != 34,NoTransport != 4, AccessCost != 350000, AccessTime != 390)
 ```
 
 
@@ -234,19 +220,19 @@ summary(acs_out)
 
 
 + Observations on the data:
-  + 469 observations after eliminating missing values (originally 488);
-  + Airport: more choice on GMP (241-228);
-  + Airline: Most are Korean Airlines (330-139);
+  + 462 observations after eliminating missing values (originally 488);
+  + Airport: more choice on GMP (238-224);
+  + Airline: Most are Korean Airlines (328-134);
   + Most are people under or equal to 50 years old;
-  + Equivalent gender distribution (220-249);
+  + Equivalent gender distribution (217-245);
   + The majorities are Koreans;
-  + The majorities travel for leisure;
+  + The mahorities travel for leisure;
   + Trip duration is highly positively skewed;
   + The number of flying companions is positively skewed; most groups are under 3 members;
   + The majorities are from Seoul;
   + The majorities are NOT travel in group;
   + The number of trips last year is positively skewed; most people traveled less than 3 times last year;
-  + Most people fly to Southeast Asia and Japan (164-150-131);
+  + Most people fly to Southeast Asia and Japan (161-151-131);
   + Most people choose the departure time between 12pm - 6pm;
   + The majorities take economy class;
   + Airfare is positively skewed;
@@ -254,7 +240,7 @@ summary(acs_out)
   + The majorities take public transportations such as Airport Limousine and Subway;
   + Access cost is highly positively skewed; there are outliers on bothe sides;
   + Most people are business workers;
-  + Most people's income are from 30 ~ 80 Million Won;
+  + Most people's income are from 30 ~ 80 Million Won; 126 'NA'
   
 ```{r}
 str(acs_out)
@@ -314,32 +300,103 @@ income <- acs_out %>%
 ```
 
 
-
 ```{r}
-# plot categorial variables
-plots <- list()
-for(nm in names(Filter(is.factor, acs_out))) {
-    plots[[nm]] <- ggplot(data = acs_out) + geom_bar(aes_string(x=nm))
-}
-
-do.call(grid.arrange,plots)
+grid.arrange(
+  airport %>% 
+    ggplot(aes(x = Airport, y = count)) +
+    geom_bar(stat = 'identity'),
+  age %>% 
+    ggplot(aes(x = Age, y = count)) +
+    geom_bar(stat = 'identity'),
+  airline %>% 
+    ggplot(aes(x = Airline, y = count)) +
+    geom_bar(stat = 'identity'),
+  gender %>% 
+    ggplot(aes(x = Gender, y = count)) +
+    geom_bar(stat = 'identity'),
+  nationality %>% 
+    ggplot(aes(x = Nationality, y = count)) +
+    geom_bar(stat = 'identity'),
+  trippurpose %>% 
+    ggplot(aes(x = TripPurpose, y = count)) +
+    geom_bar(stat = 'identity'),
+  provinceresidence %>% 
+    ggplot(aes(x = ProvinceResidence, y = count)) +
+    geom_bar(stat = 'identity'),
+  grouptravel %>% 
+    ggplot(aes(x = GroupTravel, y = count)) +
+    geom_bar(stat = 'identity'),
+  destination %>% 
+    ggplot(aes(x = Destination, y = count)) +
+    geom_bar(stat = 'identity'),
+  departuretime %>% 
+    ggplot(aes(x = DepartureTime, y = count)) +
+    geom_bar(stat = 'identity'),
+  seatclass %>% 
+    ggplot(aes(x = SeatClass, y = count)) +
+    geom_bar(stat = 'identity'),
+  modetrans %>% 
+    ggplot(aes(x = ModeTransport, y = count)) +
+    geom_bar(stat = 'identity'),
+  occupation %>% 
+    ggplot(aes(x = Occupation, y = count)) +
+    geom_bar(stat = 'identity'),
+  income %>% 
+    ggplot(aes(x = Income, y = count)) +
+    geom_bar(stat = 'identity'),
+  ncol = 4
+)
 ```
+
 
 
 ```{r}
 # Categorical Variables - Airport
-plots <- list()
-for(nm in names(Filter(is.factor, acs_out))) {
-    plots[[nm]] <- ggplot(data = acs_out,aes(fill = Airport))+ geom_bar(position = "dodge",aes_string(x=nm)) 
-}
-
-do.call(grid.arrange,plots[-c(1,2)])
+# Airports distrubution is equivalent
+grid.arrange(
+  acs_out %>% 
+    ggplot(aes(Gender,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Age,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Nationality, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(TripPurpose, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ProvinceResidence, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(GroupTravel,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Destination, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(DepartureTime, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(SeatClass, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ModeTransport, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Occupation, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Income, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  ncol = 3
+)
 ```
-
 + Observations on the categorical variables (airport):
   + Variable Gender, Group Travel, SeatClass have similar pattern(counts) on both airports;
-  + We can remove Gender, Group Travel, SeatClass from independent variables.
-  
+  + We can remove Gender, Group Travel, SeatClass from dependent variables.
+
 ```{r}
 # remove Gender, Group Travel, Seat Class
 # Airport Model
@@ -349,13 +406,46 @@ acs_ap <- subset(acs_out, select = -c(Gender, GroupTravel, SeatClass))
 
 ```{r}
 # Categorical Variables - Airline
-plots <- list()
-for(nm in names(Filter(is.factor, acs_out))) {
-    plots[[nm]] <- ggplot(data = acs_out,aes(fill = Airline))+ geom_bar(position = "dodge",aes_string(x=nm)) 
-}
-
-do.call(grid.arrange,plots[-c(1,2)])
-
+# Airline distribution is skewed: percentage
+grid.arrange(
+  acs_out %>% 
+    ggplot(aes(Gender,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Age,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Nationality, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(TripPurpose, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ProvinceResidence, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(GroupTravel,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Destination, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(DepartureTime, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(SeatClass, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ModeTransport, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Occupation, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Income, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  ncol = 3
+)
 ```
 
 + Observations on the categorical variables (airline):
@@ -404,7 +494,7 @@ cor_plot %>%
   ggpairs()
 ```
 
-
+# Didn't see multicollinarity;
 
 ```{r}
 # airline with all numerical variables
