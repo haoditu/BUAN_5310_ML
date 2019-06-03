@@ -571,6 +571,10 @@ print(nrow(train.set))
 print(nrow(test.set)) 
 
 ```
+```{r}
+contrasts(acs_ap$Airport)
+# GMP will be used as the reference
+```
 
 ```{r}
 ## Logistic Regression for Airport
@@ -613,6 +617,11 @@ print(nrow(test.set))
 ```
 
 ```{r}
+contrasts(acs_al$Airline)
+# Foreign airline will be used as the reference
+```
+
+```{r}
 ## Logistic Regression for Airline
 # find out how the raw features perform. 
 Airline.logit.1 <- glm(Airline ~., data = train.set, family=binomial("logit")) 
@@ -635,6 +644,7 @@ anova(Airline.logit.2, test="Chisq")
 ```
 
 ```{r}
-
+is.factor(acs_ap$Airport)
+contrasts(acs_ap$Airport)
 ```
 
