@@ -643,8 +643,5 @@ summary(Airline.logit.2)
 anova(Airline.logit.2, test="Chisq")
 ```
 
-```{r}
-is.factor(acs_ap$Airport)
-contrasts(acs_ap$Airport)
-```
+
 
