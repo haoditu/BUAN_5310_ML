@@ -356,6 +356,9 @@ grid.arrange(
 # Airports distrubution is equivalent
 grid.arrange(
   acs_out %>% 
+    ggplot(aes(Airline,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
     ggplot(aes(Gender,fill = Airport)) +
     geom_bar(position = "dodge"),
   acs_out %>% 
@@ -409,6 +412,9 @@ acs_ap <- subset(acs_out, select = -c(Gender, GroupTravel, SeatClass))
 # Categorical Variables - Airline
 # Airline distribution is skewed: percentage
 grid.arrange(
+  acs_out %>% 
+    ggplot(aes(Airport,fill = Airline)) +
+    geom_bar(position = "dodge"),
   acs_out %>% 
     ggplot(aes(Gender,fill = Airline)) +
     geom_bar(position = "dodge"),
