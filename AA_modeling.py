@@ -11,10 +11,9 @@ from statsmodels.formula.api import ols
 
 
 
-os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
-acs_airport = pd.read_csv("acs_ap.csv", sep=',', header=0)
-acs_airline = pd.read_csv("acs_al.csv", sep=',', header=0)
+acs_airport = pd.read_csv("acs_ap.csv", sep=',', index_col=0)
+acs_airline = pd.read_csv("acs_al.csv", sep=',', index_col=0)
 
 # Summary statistics
 pd.set_option('display.max_columns', None)
