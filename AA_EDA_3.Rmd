@@ -559,7 +559,7 @@ write.csv(acs_al, file = "acs_al.csv")
 
 ```{r}
 ## Model fitting and evaluation
-#70/30 Train/Test Split 
+#70/30 Train/Test Split for Airport
 install.packages('caret') 
  
 library(caret) 
@@ -573,7 +573,7 @@ print(nrow(test.set))
 ```
 
 ```{r}
-## Logistic Regression
+## Logistic Regression for Airport
 # find out how the raw features perform. 
 Airport.logit.1 <- glm(Airport ~., data = train.set, family=binomial("logit")) 
 print(Airport.logit.1)  
@@ -589,7 +589,7 @@ anova(Airport.logit.1, test="Chisq")
 + TripDuration, FlyingCompanion, NotripLastYear, Airfare, ModeTransport contribute little, can be removed.
 
 ```{r}
-## Logistic regression 2
+## Logistic regression 2 for Airport
 Airport.logit.2 <- glm(Airport ~ Airline + Age + Nationality + TripPurpose + ProvinceResidence + Destination + DepartureTime + NoTransport + AccessCost + AccessTime + Occupation + Income, data = train.set, family=binomial("logit")) 
 print(Airport.logit.2)  
 summary(Airport.logit.2)
@@ -597,5 +597,44 @@ summary(Airport.logit.2)
 
 ```{r}
 anova(Airport.logit.2, test="Chisq")
+```
+
+
+```{r}
+## Model fitting and evaluation
+#70/30 Train/Test Split for Airline
+
+set.seed(666) 
+trainrows<-createDataPartition(acs_ap$Airline, p = 0.7, list=FALSE) 
+train.set<-acs_al[trainrows,] 
+test.set<-acs_al[-trainrows,] 
+print(nrow(train.set)) 
+print(nrow(test.set)) 
+```
+
+```{r}
+## Logistic Regression for Airline
+# find out how the raw features perform. 
+Airline.logit.1 <- glm(Airline ~., data = train.set, family=binomial("logit")) 
+summary(Airline.logit.1)  
+```
+
+```{r}
+## anova analysis
+anova(Airline.logit.1, test="Chisq")
+```
+
+```{r}
+## Logistic Regression for Airline 2
+Airline.logit.2 <- glm(Airline ~ Airport + Nationality + ModeTransport, data = train.set, family=binomial("logit")) 
+summary(Airline.logit.2)  
+```
+
+```{r}
+anova(Airline.logit.2, test="Chisq")
+```
+
+```{r}
+
 ```
 

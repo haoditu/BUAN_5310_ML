@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import statsmodels.api as sm
 from sklearn.model_selection  import train_test_split
@@ -7,7 +6,6 @@ from sklearn import tree
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
-from statsmodels.formula.api import ols
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
 
