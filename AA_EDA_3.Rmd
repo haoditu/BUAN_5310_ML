@@ -188,9 +188,10 @@ acs_na[21] <- ifelse(acs_na[21] == 1, '<=30',
                 (ifelse(acs_na[21] == 2, '30~80',
                   (ifelse(acs_na[21] == 3, '30~80',
                        (ifelse(acs_na[21] == 4, '80~150',   
-                               (ifelse(acs_na[3] == 5, '80~150',
-                                       (ifelse(acs_na[3] == 'NA', 'NA','150~200>')))))))))))
+                               (ifelse(acs_na[21] == 5, '80~150',
+                                       (ifelse(acs_na[21] == 'NA', 'NA','150~200>')))))))))))
 acs_na$Income[is.na(acs_na$Income)] <- 0
+acs_na$Income <- acs_na$Income %>% as.factor()
 
 anyNA(acs_na)
 summary(acs_na)
@@ -542,7 +543,9 @@ airport_num_table
 ```{r}
 # Write CSV in R
 
-## Airport Model
-# write.csv(acs_ap, file = "acs_ap.csv")
-# write.csv(acs_al, file = "acs_al.csv")
+## Airport Model data
+write.csv(acs_ap, file = "acs_ap.csv")
+
+## Airline Model data
+write.csv(acs_al, file = "acs_al.csv")
 ```
