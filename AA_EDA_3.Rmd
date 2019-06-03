@@ -549,3 +549,47 @@ write.csv(acs_ap, file = "acs_ap.csv")
 ## Airline Model data
 write.csv(acs_al, file = "acs_al.csv")
 ```
+
+
+```{r}
+## Model fitting and evaluation
+#70/30 Train/Test Split 
+install.packages('caret') 
+ 
+library(caret) 
+set.seed(666) 
+trainrows<-createDataPartition(acs_ap$Airport, p = 0.7, list=FALSE) 
+train.set<-acs_ap[trainrows,] 
+test.set<-acs_ap[-trainrows,] 
+print(nrow(train.set)) 
+print(nrow(test.set)) 
+
+```
+
+```{r}
+## Logistic Regression
+# find out how the raw features perform. 
+Airport.logit.1 <- glm(Airport ~., data = train.set, family=binomial("logit")) 
+print(Airport.logit.1)  
+```
++ Null Deviance is 448.9; Residual Deviance is 139.7
++ So including the raw features brought down the deviance by 448.9 - 139.7 =309 points with a 323-271=52 change in degrees of freedom. 
+
+```{r}
+## anova analysis
+anova(Airport.logit.1, test="Chisq")
+```
+
++ TripDuration, FlyingCompanion, NotripLastYear, Airfare, ModeTransport contribute little, can be removed.
+
+```{r}
+## Logistic regression 2
+Airport.logit.2 <- glm(Airport ~ Airline + Age + Nationality + TripPurpose + ProvinceResidence + Destination + DepartureTime + NoTransport + AccessCost + AccessTime + Occupation + Income, data = train.set, family=binomial("logit")) 
+print(Airport.logit.2)  
+summary(Airport.logit.2)
+```
+
+```{r}
+anova(Airport.logit.2, test="Chisq")
+```
+
