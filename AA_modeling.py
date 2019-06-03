@@ -7,19 +7,29 @@ from sklearn import tree
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
+from statsmodels.formula.api import ols
 
 
 
 os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
-acs = pd.read_csv("acs.csv", sep=',', header=0)
+acs_airport = pd.read_csv("acs_ap.csv", sep=',', header=0)
+acs_airline = pd.read_csv("acs_al.csv", sep=',', header=0)
 
 # Summary statistics
 pd.set_option('display.max_columns', None)
-acs.describe()
+acs_airport.describe()
+acs_airline.describe()
+
 
 # Correlation
-acs.corr()
+acs_airport.corr()
+acs_airline.corr()
+
+# Anova test
+
+
+
 
 Y = acs['Airport'].astype('category').cat.codes
 X = acs.drop(['Airport'],axis = 1)
