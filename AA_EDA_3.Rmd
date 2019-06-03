@@ -570,10 +570,16 @@ test.set<-acs_ap[-trainrows,]
 print(nrow(train.set)) 
 print(nrow(test.set)) 
 
+trainrows2<-createDataPartition(acs_al$Airline, p = 0.7, list=FALSE) 
+train.set.2<-acs_al[trainrows2,] 
+test.set.2<-acs_al[-trainrows2,] 
+print(nrow(train.set.2)) 
+print(nrow(test.set.2)) 
+
 ```
 
 ```{r}
-## Logistic Regression
+## Logistic Regression for Airport 
 # find out how the raw features perform. 
 Airport.logit.1 <- glm(Airport ~., data = train.set, family=binomial("logit")) 
 print(Airport.logit.1)  
@@ -582,7 +588,7 @@ print(Airport.logit.1)
 + So including the raw features brought down the deviance by 448.9 - 139.7 =309 points with a 323-271=52 change in degrees of freedom. 
 
 ```{r}
-## anova analysis
+## anova analysis for Airport logit model
 anova(Airport.logit.1, test="Chisq")
 ```
 
@@ -599,3 +605,29 @@ summary(Airport.logit.2)
 anova(Airport.logit.2, test="Chisq")
 ```
 
+
+```{r}
+## Logistic Regression for Airline 
+# find out how the raw features perform. 
+Airline.logit.1 <- glm(Airline ~., data = train.set.2, family=binomial("logit")) 
+print(Airline.logit.1)  
+```
+
+
+```{r}
+## anova analysis for Airline logit model
+anova(Airline.logit.1, test="Chisq")
+```
++ Only Airport, Destination, Airfare, NoTransport, ModeTransport, Income are statistically significant.
+
+```{r}
+## Logistic regression 2 for Airline
+Airline.logit.2 <- glm(Airline ~ Airport + Destination + NoTransport + ModeTransport + Income, data = train.set.2, family=binomial("logit")) 
+print(Airline.logit.2)  
+summary(Airline.logit.2)
+```
+
+
+```{r}
+anova(Airline.logit.2, test="Chisq")
+```
