@@ -8,6 +8,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
+import os
+
+os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
 
 acs_airport = pd.read_csv("acs_ap.csv", sep=',', index_col=0)
@@ -108,7 +111,7 @@ acs_airline['TripPurpose'] = acs_airport['TripPurpose'].astype('category').cat.c
 acs_airline['Age'] = acs_airport['Age'].astype('category').cat.codes
 acs_airline['Income'] = acs_airport['Income'].astype('category').cat.codes
 Y_al= acs_airport['Airline']
-X_al= acs_airport.drop(['Airline'],axis = 1)
+X_al= acs_airport.drop(['Airline', 'ProvinceResidence'], axis = 1)
 
 # Logit model 
 logit_model = sm.Logit(Y_al, X_al).fit()
@@ -138,7 +141,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X_al, Y_al, test_size=0.30,r
 clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
 clf = clf.fit(X_train, Y_train)
 # export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airline.dot', feature_names=X_ap.columns)
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airline1.dot', feature_names=X_al.columns)
 Y_pred = clf.predict(X_test)  
 print(metrics.confusion_matrix(Y_test, Y_pred))  
 print(classification_report(Y_test, Y_pred))
