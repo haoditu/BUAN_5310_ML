@@ -10,7 +10,7 @@ from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
 import os
 
-os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
+#os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
 
 acs_airport = pd.read_csv("acs_ap.csv", sep=',', index_col=0)
@@ -30,9 +30,15 @@ acs_airline.corr()
 # Covert categorical variables to numerical
 acs_airport['Airport'] = acs_airport['Airport'].astype('category').cat.codes
 acs_airport['Airline'] = acs_airport['Airline'].astype('category').cat.codes
-acs_airport['TripPurpose'] = acs_airport['TripPurpose'].astype('category').cat.codes
+#acs_airport['TripPurpose'] = acs_airport['TripPurpose'].astype('category').cat.codes
 acs_airport['Age'] = acs_airport['Age'].astype('category').cat.codes
 acs_airport['Income'] = acs_airport['Income'].astype('category').cat.codes
+acs_airport['ModeTransport'] = acs_airport['ModeTransport'].astype('category').cat.codes
+acs_airport['Occupation'] = acs_airport['Occupation'].astype('category').cat.codes
+acs_airport['Occupation'] = acs_airport['Occupation'].astype('category').cat.codes
+acs_airport['Nationality'] = acs_airport['Nationality'].astype('category').cat.codes
+
+
 Y_ap= acs_airport['Airport']
 X_ap= acs_airport.drop(['Airport'],axis = 1)
 
