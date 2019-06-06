@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
+from sklearn import metrics
 import os
 
 #os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
@@ -28,6 +29,7 @@ acs_airline.corr()
 
 ### Airport modeling
 # Covert categorical variables to numerical
+acs_airport.insert(0, 'intercept', 1.0)
 acs_airport['Airport'] = acs_airport['Airport'].astype('category').cat.codes
 acs_airport['Airline'] = acs_airport['Airline'].astype('category').cat.codes
 #acs_airport['TripPurpose'] = acs_airport['TripPurpose'].astype('category').cat.codes
@@ -43,16 +45,19 @@ Y_ap= acs_airport['Airport']
 X_ap= acs_airport.drop(['Airport'],axis = 1)
 
 # Logit model 
-logit_model = sm.Logit(Y_ap, X_ap).fit()
-logit_model.summary()
 X_train, X_test, Y_train, Y_test = train_test_split(X_ap, Y_ap, test_size=0.30,random_state=109)
-logisticRegr = LogisticRegression()
-logisticRegr.fit(X_train, Y_train)
-Y_pred = logisticRegr.predict(X_test)
-print(metrics.confusion_matrix(Y_test, Y_pred))  
-print(classification_report(Y_test, Y_pred))
-print("Accuracy:",metrics.accuracy_score(Y_test, Y_pred))
-print("Error Rate:",1-metrics.accuracy_score(Y_test, Y_pred))
+result = sm.Logit(Y_train, X_train).fit()
+result.summary()
+Y_pred = result.predict(X_test)
+X_test.loc[:,'prediction']=0
+X_test.loc[Y_pred > 0.5,'prediction']=1
+pd.crosstab(Y_test,X_test['prediction'],rownames =['actual'],colnames=['predicted'])
+
+
+#print(metrics.confusion_matrix(Y_test, Y_pred))  
+#print(classification_report(Y_test, Y_pred))
+#print("Accuracy:",metrics.accuracy_score(Y_test, Y_pred))
+#print("Error Rate:",1-metrics.accuracy_score(Y_test, Y_pred))
 
 # Recursive Feature Elimination
 # Reference: https://www.datacamp.com/community/tutorials/feature-selection-python
