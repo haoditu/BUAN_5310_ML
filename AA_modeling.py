@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 import os
 
-#os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
+os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
 
 
@@ -50,7 +50,6 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
-print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
 print(classification_report(Y_test_ap, Y_pred_ap))
 
 # Tree Model 2: change tree parameters 
@@ -64,11 +63,12 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
-print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
 print(classification_report(Y_test_ap, Y_pred_ap))
 
 
 ### SVM model
+
+# SVM model 1
 # Normalize data
 scaler = StandardScaler()  
 scaler.fit(X_train_ap)
@@ -82,8 +82,41 @@ print(classification_report(Y_test_ap, y_pred_ap))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
-print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap))
+
+# SVM model 2
+# Change parameters: use 'poly' as kernel
+scaler = StandardScaler()  
+scaler.fit(X_train_ap)
+X_train_ap = scaler.transform(X_train_ap)  
+X_test_ap = scaler.transform(X_test_ap) 
+svclassifier = SVC(kernel='poly', degree=3)    	
+svclassifier.fit(X_train_ap, Y_train_ap)  
+y_pred_ap = svclassifier.predict(X_test_ap)  	
+print(metrics.confusion_matrix(Y_test_ap, y_pred_ap)) 	
+print(classification_report(Y_test_ap, y_pred_ap))
+print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
+print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap))
+
+ # SVM model 3
+# Change parameters: use 'poly' as kernel
+scaler = StandardScaler()  
+scaler.fit(X_train_ap)
+X_train_ap = scaler.transform(X_train_ap)  
+X_test_ap = scaler.transform(X_test_ap) 
+svclassifier = SVC(kernel='rbf')    	
+svclassifier.fit(X_train_ap, Y_train_ap)  
+y_pred_ap = svclassifier.predict(X_test_ap)  	
+print(metrics.confusion_matrix(Y_test_ap, y_pred_ap)) 	
+print(classification_report(Y_test_ap, y_pred_ap))
+print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
+print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
+  
+ 
 
 #### Airline modeling
 ## data preprocessing
@@ -121,7 +154,6 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
-print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
 print(classification_report(Y_test_al, Y_pred_al))
 
 # Tree Model 2: change tree parameters 
@@ -135,11 +167,10 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
-print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
 print(classification_report(Y_test_al, Y_pred_al))
 
 ### SVM model
-# Normalize data
+# SVM model 1:use linear kernel
 scaler = StandardScaler()  
 scaler.fit(X_train_al)
 X_train_al = scaler.transform(X_train_al)  
@@ -152,6 +183,36 @@ print(classification_report(Y_test_al, y_pred_al))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
-print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
-print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
+
+# SVM model 2:use poly kernel
+scaler = StandardScaler()  
+scaler.fit(X_train_al)
+X_train_al = scaler.transform(X_train_al)  
+X_test_al = scaler.transform(X_test_al) 
+svclassifier = SVC(kernel='poly', degree=3)    	
+svclassifier.fit(X_train_al, Y_train_al)  
+y_pred_al = svclassifier.predict(X_test_al)  	
+print(metrics.confusion_matrix(Y_test_al, y_pred_al)) 	
+print(classification_report(Y_test_al, y_pred_al))
+print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
+print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
+
+# SVM model 3:use rbf kernel
+scaler = StandardScaler()  
+scaler.fit(X_train_al)
+X_train_al = scaler.transform(X_train_al)  
+X_test_al = scaler.transform(X_test_al) 
+svclassifier = SVC(kernel='rbf')    	
+svclassifier.fit(X_train_al, Y_train_al)  
+y_pred_al = svclassifier.predict(X_test_al)  	
+print(metrics.confusion_matrix(Y_test_al, y_pred_al)) 	
+print(classification_report(Y_test_al, y_pred_al))
+print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
+print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
+ 
 
