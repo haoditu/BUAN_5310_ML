@@ -4,11 +4,9 @@ from sklearn import tree
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
-from sklearn.tree.tree import DecisionTreeClassifier
-from sklearn.datasets import load_iris
 import os
 
-os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
+#os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
 
 
@@ -111,7 +109,7 @@ print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap))
 
  # SVM model 3
-# Change parameters: use 'poly' as kernel
+# Change parameters: use 'rbf' as kernel
 scaler = StandardScaler()  
 scaler.fit(X_train_ap)
 X_train_ap = scaler.transform(X_train_ap)  
@@ -167,7 +165,7 @@ dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_nam
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
-print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 print(classification_report(Y_test_al, Y_pred_al))
@@ -181,7 +179,7 @@ dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_2.dot', feature_nam
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
-print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 print(classification_report(Y_test_al, Y_pred_al))
