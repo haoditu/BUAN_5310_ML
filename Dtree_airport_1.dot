@@ -3,7 +3,7 @@ node [shape=box] ;
 0 [label="Destination <= 1.5\ngini = 0.499\nsamples = 325\nvalue = [168, 157]"] ;
 1 [label="Occupation <= 0.5\ngini = 0.352\nsamples = 197\nvalue = [152, 45]"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label="ProvinceResidence <= 3.5\ngini = 0.473\nsamples = 26\nvalue = [10, 16]"] ;
+2 [label="ProvinceResidence <= 0.5\ngini = 0.473\nsamples = 26\nvalue = [10, 16]"] ;
 1 -> 2 ;
 3 [label="gini = 0.337\nsamples = 14\nvalue = [3, 11]"] ;
 2 -> 3 ;

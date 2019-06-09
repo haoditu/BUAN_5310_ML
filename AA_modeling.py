@@ -4,6 +4,8 @@ from sklearn import tree
 from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
+from sklearn.tree.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
 import os
 
 os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
@@ -29,6 +31,9 @@ X_train_ap["FrequentFlightDestination"] = X_train_ap["FrequentFlightDestination"
 X_train_ap["Destination"] = X_train_ap["Destination"].astype('category').cat.codes
 X_train_ap["Occupation"] = X_train_ap["Occupation"].astype('category').cat.codes
 X_train_ap["Income"] = X_train_ap["Income"].astype('category').cat.codes
+X_train_ap["ProvinceResidence"] = X_train_ap["ProvinceResidence"].astype('category').cat.codes
+X_train_ap["ModeTransport"] = X_train_ap["ModeTransport"].astype('category').cat.codes
+
 
 X_test_ap["Airline"] = X_test_ap["Airline"].astype('category').cat.codes
 X_test_ap["Nationality"] = X_test_ap["Nationality"].astype('category').cat.codes
@@ -37,6 +42,8 @@ X_test_ap["FrequentFlightDestination"] = X_test_ap["FrequentFlightDestination"].
 X_test_ap["Destination"] = X_test_ap["Destination"].astype('category').cat.codes
 X_test_ap["Occupation"] = X_test_ap["Occupation"].astype('category').cat.codes
 X_test_ap["Income"] = X_test_ap["Income"].astype('category').cat.codes
+X_test_ap["ProvinceResidence"] = X_test_ap["ProvinceResidence"].astype('category').cat.codes
+X_test_ap["ModeTransport"] = X_test_ap["ModeTransport"].astype('category').cat.codes
 
 
 ### Tree Model 1
@@ -135,12 +142,17 @@ X_train_al["TripPurpose"] = X_train_al["TripPurpose"].astype('category').cat.cod
 X_train_al["FrequentFlightDestination"] = X_train_al["FrequentFlightDestination"].astype('category').cat.codes
 X_train_al["SeatClass"] = X_train_al["SeatClass"].astype('category').cat.codes
 X_train_al["Income"] = X_train_al["Income"].astype('category').cat.codes
+X_train_al["ProvinceResidence"] = X_train_al["ProvinceResidence"].astype('category').cat.codes
+X_train_al["ModeTransport"] = X_train_al["ModeTransport"].astype('category').cat.codes
+
 
 X_test_al["Nationality"] = X_test_al["Nationality"].astype('category').cat.codes
 X_test_al["TripPurpose"] = X_test_al["TripPurpose"].astype('category').cat.codes
 X_test_al["FrequentFlightDestination"] = X_test_al["FrequentFlightDestination"].astype('category').cat.codes
 X_test_al["SeatClass"] = X_test_al["SeatClass"].astype('category').cat.codes
 X_test_al["Income"] = X_test_al["Income"].astype('category').cat.codes
+X_test_al["ProvinceResidence"] = X_test_al["ProvinceResidence"].astype('category').cat.codes
+X_test_al["ModeTransport"] = X_test_al["ModeTransport"].astype('category').cat.codes
 
 
 ### Tree Model 1
