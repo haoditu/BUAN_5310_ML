@@ -136,6 +136,7 @@ summary(acs_na)
 
 ```
 
+
 # 4. Outlier
 ```{r}
 # Outliers - numerical
@@ -240,6 +241,7 @@ income <- acs_out %>%
   group_by(Income) %>% 
   summarise(count= n())
 ```
+
 
 
 ```{r}
@@ -567,8 +569,20 @@ summary(ap_logit_2)
 
 
 ### 6.14 Confusion Matrix
+
 ```{r}
-# Prediction
+# Prediction - Training
+#test_set_ap2 <- subset(test_set_ap, select = -c(TripDuration, Airfare, FlyingCompanion, AccessTime))
+predicted <- plogis(predict(ap_logit_2, train_set_ap))
+pred <- ifelse(predicted > 0.5, "ICN", "GMP")
+pred <- as.factor(pred)
+confusionMatrix(train_set_ap$Airport, pred)
+```
+
+
+
+```{r}
+# Prediction - Testing
 #test_set_ap2 <- subset(test_set_ap, select = -c(TripDuration, Airfare, FlyingCompanion, AccessTime))
 predicted <- plogis(predict(ap_logit_2, test_set_ap))
 pred <- ifelse(predicted > 0.5, "ICN", "GMP")
@@ -605,7 +619,7 @@ train_set_al<-acs_al[trainrows_al,]
 test_set_al<-acs_al[-trainrows_al,]
 
 # write.csv(train_set_al, file = "train_airline.csv")
-# write.csv(test_set_ap, file = "test_airline.csv")
+# write.csv(test_set_al, file = "test_airline.csv")
 ```
 
 
@@ -641,8 +655,19 @@ pnorm(abs(zvalues), lower.tail=FALSE)*2
 
 
 ### 6.26 Original Model Prediction
+
 ```{r}
-# Prediction
+# Prediction - Training
+predicted_al <- predict (al_logit_1, train_set_al, "probs")
+
+pred_al <- predict(al_logit_1, train_set_al)
+
+confusionMatrix(train_set_al$Airline, pred_al)
+```
+
+
+```{r}
+# Prediction - Testing 
 predicted_al <- predict (al_logit_1, test_set_al, "probs")
 
 pred_al <- predict(al_logit_1, test_set_al)
@@ -665,7 +690,7 @@ pred_k_al <- predict(model_al, newdata=test_set_al)
 confusionMatrix(data=pred_k_al, test_set_al$Airline)
 ```
 
-
+### 6.29 Original Model Stepwise
 ```{r}
 null_al = multinom(Airline ~ 1, data = train_set_al)
 full_al = multinom(Airline ~., data = train_set_al)
@@ -674,19 +699,34 @@ step(null_al, scope = list(lower=null_al,upper=full_al),
 ```
 
 
-
-
 ## 6.3 Airline Modified Model
 ```{r}
-al_logit_2 <- multinom(Airline ~ Destination + Airfare + ProvinceResidence + 
-    Airport + NoTransport + DepartureTime + FrequentFlightDestination +
+al_logit_2 <- multinom(Airline ~ Airfare * Destination + SeatClass + Nationality + Age + Gender + TripPurpose + Income + 
+    Airport + DepartureTime + FrequentFlightDestination +
     TripDuration + NoTripsLastYear + FlyingCompanion, data = train_set_al)
 print(al_logit_2)
 summary(al_logit_2)
 ```
 
 
-## 
+```{r}
+summary(al_logit_2)$coefficients
+```
+
+
+```{r}
+summary(al_logit_2)$standard.errors
+```
+
+
+```{r}
+zvalues <- summary(al_logit_2)$coefficients / summary(al_logit_2)$standard.errors
+
+pnorm(abs(zvalues), lower.tail=FALSE)*2
+```
+
+
+### 6.31 Confusion Matrix
 ```{r}
 # Prediction
 predicted_al <- predict (al_logit_2, test_set_al, "probs")
@@ -696,12 +736,14 @@ pred_al <- predict(al_logit_2, test_set_al)
 confusionMatrix(test_set_al$Airline, pred_al)
 ```
 
+
+### 6.31 R Squared
 ```{r}
 library(pscl)
 pR2(al_logit_2)
 ```
 
-
+### 6.32 K-folders cross validation for Airline
 ```{r}
 train_control <- trainControl(method='cv', number = 4)
 model_al <- train(Airline ~ Destination + Airfare + ProvinceResidence + 
