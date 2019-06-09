@@ -175,7 +175,7 @@ print(classification_report(Y_test_al, Y_pred_al))
 
 
 # Airline Tree Model 2: change tree parameters to prune
-clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
+clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=3, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
 clf = clf.fit(X_train_al, Y_train_al)
 
 # export estimated tree into dot graphic file
