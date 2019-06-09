@@ -49,7 +49,7 @@ clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth
 clf = clf.fit(X_train_ap, Y_train_ap) 
 
 # export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_2.dot', feature_names=X_train_ap.columns)
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_1.dot', feature_names=X_train_ap.columns)
 Y_pred_ap = clf.predict(X_test_ap) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
@@ -64,7 +64,7 @@ clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth
 clf = clf.fit(X_train_ap, Y_train_ap)
 
 # export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_1.dot', feature_names=X_train_ap.columns)
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_.dot', feature_names=X_train_ap.columns)
 Y_pred_ap = clf.predict(X_test_ap) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
@@ -148,6 +148,7 @@ X_train_al["SeatClass"] = X_train_al["SeatClass"].astype('category').cat.codes
 X_train_al["Income"] = X_train_al["Income"].astype('category').cat.codes
 X_train_al["ProvinceResidence"] = X_train_al["ProvinceResidence"].astype('category').cat.codes
 X_train_al["ModeTransport"] = X_train_al["ModeTransport"].astype('category').cat.codes
+X_train_al["Occupation"] = X_train_al["Occupation"].astype('category').cat.codes
 
 
 X_test_al["Nationality"] = X_test_al["Nationality"].astype('category').cat.codes
@@ -157,6 +158,7 @@ X_test_al["SeatClass"] = X_test_al["SeatClass"].astype('category').cat.codes
 X_test_al["Income"] = X_test_al["Income"].astype('category').cat.codes
 X_test_al["ProvinceResidence"] = X_test_al["ProvinceResidence"].astype('category').cat.codes
 X_test_al["ModeTransport"] = X_test_al["ModeTransport"].astype('category').cat.codes
+X_test_al["Occupation"] = X_test_al["Occupation"].astype('category').cat.codes
 
 
 ### Airline Tree Model 1
@@ -164,7 +166,7 @@ clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth
 clf = clf.fit(X_train_al, Y_train_al)
 
 # export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_2.dot', feature_names=X_train_al.columns)
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_names=X_train_al.columns)
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
@@ -179,7 +181,7 @@ clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth
 clf = clf.fit(X_train_al, Y_train_al)
 
 # export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_names=X_train_al.columns)
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_2.dot', feature_names=X_train_al.columns)
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
