@@ -46,20 +46,7 @@ X_test_ap["ProvinceResidence"] = X_test_ap["ProvinceResidence"].astype('category
 X_test_ap["ModeTransport"] = X_test_ap["ModeTransport"].astype('category').cat.codes
 
 
-### Tree Model 1
-clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
-clf = clf.fit(X_train_ap, Y_train_ap)
-
-# export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_1.dot', feature_names=X_train_ap.columns)
-Y_pred_ap = clf.predict(X_test_ap) 
-print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
-print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
-print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
-print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
-print(classification_report(Y_test_ap, Y_pred_ap))
-
-# Tree Model 2: change tree parameters 
+### Airport Tree Model 1
 clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=5, max_features=None, max_leaf_nodes=None, min_samples_leaf=3, min_samples_split=3, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
 clf = clf.fit(X_train_ap, Y_train_ap) 
 
@@ -68,6 +55,22 @@ dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_2.dot', feature_nam
 Y_pred_ap = clf.predict(X_test_ap) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
+print(classification_report(Y_test_ap, Y_pred_ap))
+
+
+# Airport Tree Model 2: change tree parameters to prune tree model
+clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
+clf = clf.fit(X_train_ap, Y_train_ap)
+
+# export estimated tree into dot graphic file
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airport_1.dot', feature_names=X_train_ap.columns)
+Y_pred_ap = clf.predict(X_test_ap) 
+print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
+print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
 print(classification_report(Y_test_ap, Y_pred_ap))
@@ -164,6 +167,7 @@ dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_nam
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 print(classification_report(Y_test_al, Y_pred_al))
@@ -177,6 +181,7 @@ dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_2.dot', feature_nam
 Y_pred_al = clf.predict(X_test_al) 
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, clf.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 print(classification_report(Y_test_al, Y_pred_al))
