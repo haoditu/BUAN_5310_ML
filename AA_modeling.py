@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 import os
 
-#os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
+os.chdir("/Users/Shenshen_Wu/Documents/GitHub/BUAN_5310_ML")
 
 
 
@@ -76,7 +76,7 @@ print(classification_report(Y_test_ap, Y_pred_ap))
 
 ### SVM model
 
-# SVM model 1
+# Airport SVM model 1
 # Normalize data
 scaler = StandardScaler()  
 scaler.fit(X_train_ap)
@@ -89,10 +89,11 @@ print(metrics.confusion_matrix(Y_test_ap, y_pred_ap))
 print(classification_report(Y_test_ap, y_pred_ap))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap))
 
-# SVM model 2
+# Airport SVM model 2
 # Change parameters: use 'poly' as kernel
 scaler = StandardScaler()  
 scaler.fit(X_train_ap)
@@ -105,10 +106,11 @@ print(metrics.confusion_matrix(Y_test_ap, y_pred_ap))
 print(classification_report(Y_test_ap, y_pred_ap))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap))
 
- # SVM model 3
+ # Airport SVM model 3
 # Change parameters: use 'rbf' as kernel
 scaler = StandardScaler()  
 scaler.fit(X_train_ap)
@@ -121,6 +123,7 @@ print(metrics.confusion_matrix(Y_test_ap, y_pred_ap))
 print(classification_report(Y_test_ap, y_pred_ap))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
   
@@ -156,21 +159,7 @@ X_test_al["ProvinceResidence"] = X_test_al["ProvinceResidence"].astype('category
 X_test_al["ModeTransport"] = X_test_al["ModeTransport"].astype('category').cat.codes
 
 
-### Tree Model 1
-clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
-clf = clf.fit(X_train_al, Y_train_al)
-
-# export estimated tree into dot graphic file
-dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_names=X_train_al.columns)
-Y_pred_al = clf.predict(X_test_al) 
-print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
-print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
-print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
-print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
-print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
-print(classification_report(Y_test_al, Y_pred_al))
-
-# Tree Model 2: change tree parameters 
+### Airline Tree Model 1
 clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=5, max_features=None, max_leaf_nodes=None, min_samples_leaf=3, min_samples_split=3, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
 clf = clf.fit(X_train_al, Y_train_al)
 
@@ -184,7 +173,23 @@ print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 print(classification_report(Y_test_al, Y_pred_al))
 
-### SVM model
+
+# Airline Tree Model 2: change tree parameters to prune
+clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=10, max_features=None, max_leaf_nodes=None, min_samples_leaf=10, min_samples_split=2, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
+clf = clf.fit(X_train_al, Y_train_al)
+
+# export estimated tree into dot graphic file
+dot_data = tree.export_graphviz(clf, out_file='Dtree_airline_1.dot', feature_names=X_train_al.columns)
+Y_pred_al = clf.predict(X_test_al) 
+print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
+print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, clf.predict(X_train_al)))
+print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
+print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
+print(classification_report(Y_test_al, Y_pred_al))
+
+
+### Airline SVM model
 # SVM model 1:use linear kernel
 scaler = StandardScaler()  
 scaler.fit(X_train_al)
@@ -197,6 +202,7 @@ print(metrics.confusion_matrix(Y_test_al, y_pred_al))
 print(classification_report(Y_test_al, y_pred_al))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
 
@@ -212,6 +218,7 @@ print(metrics.confusion_matrix(Y_test_al, y_pred_al))
 print(classification_report(Y_test_al, y_pred_al))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
 
@@ -227,6 +234,7 @@ print(metrics.confusion_matrix(Y_test_al, y_pred_al))
 print(classification_report(Y_test_al, y_pred_al))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
+print("Train Error Rate:",1-metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al))
  
