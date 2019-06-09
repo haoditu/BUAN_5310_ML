@@ -368,6 +368,10 @@ acs_ap[2] <- ifelse(acs_ap[2] == 1, 'Korean',
 
 acs_ap[4] <- ifelse(acs_ap[4] == 1, 'Korean', 'Foreign')
 
+acs_ap[8] <- ifelse(acs_ap[8] == 1, 'City',
+                    ifelse(acs_ap[8] == 2, 'City',
+                           ifelse(acs_ap[8] == 3, 'City', 'Other')))
+
 acs_ap[17] <- ifelse(acs_ap[17] == 1, 'w/income',
                      ifelse(acs_ap[17] == 2, 'w/income',
                             ifelse(acs_ap[17] == 3, 'w/income',
@@ -376,6 +380,12 @@ acs_ap[17] <- ifelse(acs_ap[17] == 1, 'w/income',
                                                  ifelse(acs_ap[17] == 6, 'w/income',
                                                        ifelse(acs_ap[17] == 7, 'w/income',
                                                               ifelse(acs_ap[17] == 12, 'Other', 'no income'))))))))
+
+acs_ap[15] <- ifelse(acs_ap[15] == 1, 'Personal',
+                     ifelse(acs_ap[15] == 2, 'Personal',
+                            ifelse(acs_ap[15] == 9, 'Personal',
+                                   ifelse(acs_ap[15] == 10, 'Air',
+                                          ifelse(acs_ap[15] == 11, 'Other', 'Public')))))
 
 acs_ap[11] <- ifelse(acs_ap[11] == 1, 'China',
                     ifelse(acs_ap[11] == 2, 'Japan', 'Other'))
@@ -456,9 +466,19 @@ acs_al[5] <- ifelse(acs_al[5] == 1, 'Korean', 'Foreign')
 
 acs_al[6] <- ifelse(acs_al[6] == 1, 'Leisure','Other')
 
+acs_al[9] <- ifelse(acs_al[9] == 1, 'City', 
+                     ifelse(acs_al[9] == 2, 'City',
+                            ifelse(acs_al[9] == 3, 'City', 'Others')))
+
 acs_al[11] <- ifelse(acs_al[11] == 1, 'SA', 
                      ifelse(acs_al[11] == 2, 'China',
                             ifelse(acs_al[11] == 3, 'Japan', 'Others')))
+
+acs_al[17] <- ifelse(acs_al[17] == 1, 'Personal',
+                     ifelse(acs_al[17] == 2, 'Personal',
+                            ifelse(acs_al[17] == 9, 'Personal',
+                                   ifelse(acs_al[17] == 10, 'Air',
+                                          ifelse(acs_al[17] == 11, 'Other', 'Public')))))
 
 acs_al[14] <- ifelse(acs_al[14] == 1, 'Economic','Other')
 
@@ -543,10 +563,16 @@ summary(ap_logit_1)
 anova(ap_logit_1, test="Chisq")
 ```
 
+```{r}
+#install.packages("car")
+library(car)
+vif(ap_logit_1)
+```
+
 
 ```{r}
 #Remove variables after Anova Analysis
-train_set_ap2 <- subset(train_set_ap, select = -c(TripDuration, Airfare, FlyingCompanion, TripPurpose, Age))
+train_set_ap2 <- subset(train_set_ap, select = -c(TripDuration, Destination, Airfare, FlyingCompanion, TripPurpose, ModeTransport))
 ```
 
 
@@ -561,10 +587,13 @@ step(null, scope = list(lower=null,upper=full),
 
 ```{r}
 # Airport Model
-ap_logit_2 <- glm(Airport ~ Destination + DepartureTime + Income + 
-    Nationality + Airline + FrequentFlightDestination + ModeTransport + 
-    Occupation + ProvinceResidence + AccessTime, data = train_set_ap2, family=binomial("logit"))
+ap_logit_2 <- glm(Airport ~., data = train_set_ap2, family=binomial("logit"))
 summary(ap_logit_2)
+```
+
+
+```{r}
+vif(ap_logit_2)
 ```
 
 
