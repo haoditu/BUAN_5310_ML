@@ -50,6 +50,7 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
+print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
 print(classification_report(Y_test_ap, Y_pred_ap))
 
 # Tree Model 2: change tree parameters 
@@ -63,6 +64,7 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
+print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
 print(classification_report(Y_test_ap, Y_pred_ap))
 
 
@@ -80,6 +82,7 @@ print(classification_report(Y_test_ap, y_pred_ap))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_ap, svclassifier.predict(X_train_ap)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_ap, y_pred_ap))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_ap, y_pred_ap))
+print("R Squared:", metrics.r2_score(Y_test_ap, Y_pred_ap))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_ap, Y_pred_ap)) 
 
 #### Airline modeling
@@ -118,6 +121,7 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
+print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
 print(classification_report(Y_test_al, Y_pred_al))
 
 # Tree Model 2: change tree parameters 
@@ -131,6 +135,7 @@ print("Train Accuracy:", metrics.accuracy_score(Y_train_al, clf.predict(X_train_
 print("Test Accuracy:", metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
+print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
 print(classification_report(Y_test_al, Y_pred_al))
 
 ### SVM model
@@ -147,5 +152,6 @@ print(classification_report(Y_test_al, y_pred_al))
 print("Train Accuracy:", metrics.accuracy_score(Y_train_al, svclassifier.predict(X_train_al)))
 print("Test Accuracy:",metrics.accuracy_score(Y_test_al, y_pred_al))
 print("Test Error Rate:",1-metrics.accuracy_score(Y_test_al, y_pred_al))
+print("R Squared:", metrics.r2_score(Y_test_al, Y_pred_al))
 print("Confusion Matrix:", metrics.confusion_matrix(Y_test_al, Y_pred_al)) 
 
