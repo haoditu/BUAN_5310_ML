@@ -149,6 +149,7 @@ X_train_al["Income"] = X_train_al["Income"].astype('category').cat.codes
 X_train_al["ProvinceResidence"] = X_train_al["ProvinceResidence"].astype('category').cat.codes
 X_train_al["ModeTransport"] = X_train_al["ModeTransport"].astype('category').cat.codes
 X_train_al["Occupation"] = X_train_al["Occupation"].astype('category').cat.codes
+X_train_al["Destination"] = X_train_al["Destination"].astype('category').cat.codes
 
 
 X_test_al["Nationality"] = X_test_al["Nationality"].astype('category').cat.codes
@@ -159,6 +160,7 @@ X_test_al["Income"] = X_test_al["Income"].astype('category').cat.codes
 X_test_al["ProvinceResidence"] = X_test_al["ProvinceResidence"].astype('category').cat.codes
 X_test_al["ModeTransport"] = X_test_al["ModeTransport"].astype('category').cat.codes
 X_test_al["Occupation"] = X_test_al["Occupation"].astype('category').cat.codes
+X_test_al["Destination"] = X_test_al["Destination"].astype('category').cat.codes
 
 
 ### Airline Tree Model 1

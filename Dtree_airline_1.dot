@@ -1,6 +1,6 @@
 digraph Tree {
 node [shape=box] ;
-0 [label="Destination <= 2.5\ngini = 0.736\nsamples = 326\nvalue = [105, 70, 56, 95]"] ;
+0 [label="Destination <= 1.5\ngini = 0.736\nsamples = 326\nvalue = [105, 70, 56, 95]"] ;
 1 [label="Airfare <= 36.5\ngini = 0.677\nsamples = 200\nvalue = [71, 53, 5, 71]"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
 2 [label="Airfare <= 25.5\ngini = 0.632\nsamples = 64\nvalue = [10, 34, 5, 15]"] ;
