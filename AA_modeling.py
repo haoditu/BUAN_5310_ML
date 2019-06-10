@@ -45,7 +45,7 @@ X_test_ap["ModeTransport"] = X_test_ap["ModeTransport"].astype('category').cat.c
 
 
 ### Airport Tree Model 1
-clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=5, max_features=None, max_leaf_nodes=None, min_samples_leaf=3, min_samples_split=3, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
+clf = tree.DecisionTreeClassifier()
 clf = clf.fit(X_train_ap, Y_train_ap) 
 
 # export estimated tree into dot graphic file
@@ -164,7 +164,7 @@ X_test_al["Destination"] = X_test_al["Destination"].astype('category').cat.codes
 
 
 ### Airline Tree Model 1
-clf = tree.DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=5, max_features=None, max_leaf_nodes=None, min_samples_leaf=3, min_samples_split=3, min_weight_fraction_leaf=0.0, presort=False, random_state=100, splitter='best')
+clf = tree.DecisionTreeClassifier()
 clf = clf.fit(X_train_al, Y_train_al)
 
 # export estimated tree into dot graphic file
