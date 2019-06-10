@@ -1,0 +1,831 @@
+---
+title: "BUAN_5310 Group_Project"
+author: "Florence Yan, Haodi Tu, Huibo Jia, Qiyu Ye"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: '3'
+  html_notebook:
+    number_sections: yes
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+---
+
+```{r message = FALSE, echo = FALSE, error = FALSE}
+# Clear environment of variables and functions
+rm(list = ls(all = TRUE)) 
+# Clear environmet of packages
+if(is.null(sessionInfo()$otherPkgs) == FALSE)lapply(paste("package:", names(sessionInfo()$otherPkgs), sep=""), detach, character.only = TRUE, unload = TRUE)
+```
+
+
+# 1. Data Loading and Preperation
+```{r message = FALSE, echo = FALSE, error = FALSE}
+library(tidyverse)
+library(GGally)
+library(ggplot2)
+library(kableExtra)
+library(gridExtra)
+library(outliers)
+library(Hmisc)
+library(DMwR)
+library(dplyr)
+library(stargazer)
+```
+
+
+```{r}
+# Load data
+## CSV file
+acs <- read.csv('airport_choice_survey_modified.csv')
+```
+
+
+```{r}
+str(acs)
+summary(acs)
+```
+
+
++ Data type transfermation:
+    + Seventeen character variables (ID excluded) and ten numerical variables
+    
+    + Numeric to factor: Airport, Airline, Gender, Nationality, TripPurpose, ProvinceResidence, GroupTravel, Destination, DepartureTime, SeatClass, ModeTransport, Occupation, Income
+    
+    + Remove unwanted variables (6)
+    + FlightNo: Don't match any other variables from data;
+    + DepartureHr: Can use Departure time;
+    + DepartureMn: Can use Departure tume; too many missing values;
+    + AcessCost: Too many missing values
+    + MileageAireline: Too many missing values
+    + Mileage: Too many missing values
+
+# 2. Basic EDA
+```{r}
+# Remove unwanted variables: FlightNo, DepartureHr, DepartureMn, Mileage, MileageAireline
+acs <- acs[ , -c(14:16,22,26,27) ]
+```
+
+
+```{r}
+# Convert data type 
+acs$Airport <- as.factor(acs$Airport)
+acs$Airline <- as.factor(acs$Airline)
+acs$Gender <- as.factor(acs$Gender)
+acs$Nationality <-as.factor(acs$Nationality)
+acs$TripPurpose <-as.factor(acs$TripPurpose)
+acs$ProvinceResidence <-as.factor(acs$ProvinceResidence)
+acs$GroupTravel <-as.factor(acs$GroupTravel)
+acs$Destination <-as.factor(acs$Destination)
+acs$FrequentFlightDestination <- as.factor(acs$FrequentFlightDestination)
+acs$DepartureTime <-as.factor(acs$DepartureTime)
+acs$SeatClass <-as.factor(acs$SeatClass)
+acs$ModeTransport <-as.factor(acs$ModeTransport)
+acs$Occupation <-as.factor(acs$Occupation)
+acs$Income <-as.factor(acs$Income)
+
+
+summary(acs)
+```
+
+
++ Missing values 
+    + Airline(10); Age(1); Gender(3); Destination(4); SeatClass(4); Airfare(86); Income(132)
+    + Remove missing values from age, airline, gender, destination, seatclass;
+    + Impute NA in airfare(numerical), regroup income(categorial)
+
+# 3. Missing Value
+```{r}
+# Missing Values
+# Remove
+acs <- acs[!is.na(acs$Age),]
+acs <- acs[!is.na(acs$Airline),]
+acs <- acs[!is.na(acs$Gender),]
+acs <- acs[!is.na(acs$Destination),]
+acs <- acs[!is.na(acs$SeatClass),]
+# Replace Airfare NAs with means by groups
+acs_na <- acs %>% 
+  group_by(Airport, Airline, Destination) %>% 
+  mutate_each(funs(replace(., which(is.na(.)), mean(., na.rm=TRUE))), 
+       starts_with('Airfare'))
+
+
+#summary(acs_na$Airfare)
+
+
+# Regroup NAs in categorical variables (Income Millon Won)
+acs_na[21] <- ifelse(acs_na[21] == 1, '<=30',
+                (ifelse(acs_na[21] == 2, '30~150',
+                  (ifelse(acs_na[21] == 3, '30~150',
+                       (ifelse(acs_na[21] == 4, '30~150',   
+                               (ifelse(acs_na[21] == 5, '30~150',
+                                       (ifelse(acs_na[21] == 'NA', 'NA','150~200>')))))))))))
+acs_na$Income[is.na(acs_na$Income)] <- '00'
+acs_na$Income <- acs_na$Income %>% as.factor()
+acs_na$Income = factor(acs_na$Income,levels(acs_na$Income)[c(2,1,4,3)])
+
+# Remove NA in Airfare
+acs_na <- acs_na[!is.na(acs_na$Airfare),]
+summary(acs_na)
+
+## Check NA
+# anyNA(acs_na)
+
+```
+
+
+# 4. Outlier
+```{r}
+# Outliers - numerical
+outlier(acs_na$TripDuration)
+outlier(acs_na$FlyingCompanion)
+outlier(acs_na$NoTripsLastYear) 
+outlier(acs_na$NoTransport)
+outlier(acs_na$AccessTime)
+
+# Remove Outliers
+acs_out <- acs_na %>%
+  filter(TripDuration != 730,FlyingCompanion != 34,NoTripsLastYear != 122,NoTransport != 4, AccessTime != 390)
+```
+
+
+```{r}
+summary(acs_out)
+```
+
+
++ Observations on the data:
+  + 463 observations after eliminating missing values (originally 488);
+  + Airport: more choice on GMP (239-224);
+  + Airline: LLC listed as the least;
+  + Most passengers are aroudn 40;
+  + Equivalent gender distribution (219-244);
+  + The majorities are Koreans;
+  + The mahorities travel for leisure;
+  + Trip duration is highly positively skewed; most are <= 5 days;
+  + The number of flying companions is positively skewed; most groups are under 3 members;
+  + The majorities are from Seoul;
+  + The majorities are NOT travel in group;
+  + The number of trips last year is positively skewed; most people traveled less than 3 times last year;
+  + Most people fly to Southeast Asia and Japan (161-151-131);
+  + Most people choose the departure time between 12pm - 6pm;
+  + The majorities take economy class;
+  + Airfare is positively skewed;
+  + Most people take one transport to the airport;
+  + The majorities take public transportations such as Airport Limousine and Subway;
+  + Access cost is highly positively skewed; there are outliers on bothe sides;
+  + Most people are business workers;
+  + Most people's income are from 30 ~ 80 Million Won; 126 'NA'
+  
++ Questions:
+  + Regroup TrupPurpose?
+  + Regroup SeatClass?
+  + Regroup ModeTransport?
+  + Regroup Occupation?
+  
+```{r}
+str(acs_out)
+```
+
+  + Categorical: Airport, Airline, Gender, Nationality, TripPurpose, ProvinceRsidence, GroupTravel, FrequentDestination, Destination, DepartureTime, SeatClass, ModeTransportation, Occupation, Income
+  
+  + Numerical: Age, TripDuration, FlyingCompanion, NoTripLastYeaar, Airfare, NoTranport, AccessTime
+  
+# 5. Visualizations
+```{r}
+# Data Visual
+## Categorical
+airport <- acs_out %>% 
+  group_by(Airport) %>% 
+  summarise(count= n())
+airline <- acs_out %>% 
+  group_by(Airline) %>% 
+  summarise(count= n())
+gender <- acs_out %>% 
+  group_by(Gender) %>% 
+  summarise(count= n())
+nationality <- acs_out %>% 
+  group_by(Nationality) %>% 
+  summarise(count= n())
+trippurpose <- acs_out %>% 
+  group_by(TripPurpose) %>% 
+  summarise(count= n())
+provinceresidence <- acs_out %>% 
+  group_by(ProvinceResidence) %>% 
+  summarise(count= n())
+grouptravel <- acs_out %>% 
+  group_by(GroupTravel) %>% 
+  summarise(count= n())
+freqdes <- acs_out %>% 
+  group_by(FrequentFlightDestination) %>% 
+  summarise(count= n())
+destination <- acs_out %>% 
+  group_by(Destination) %>% 
+  summarise(count= n())
+departuretime <- acs_out %>% 
+  group_by(DepartureTime) %>% 
+  summarise(count= n())
+seatclass <- acs_out %>% 
+  group_by(SeatClass) %>% 
+  summarise(count= n())
+modetrans <- acs_out %>% 
+  group_by(ModeTransport) %>% 
+  summarise(count= n())
+occupation <- acs_out %>% 
+  group_by(Occupation) %>% 
+  summarise(count= n())
+income <- acs_out %>% 
+  group_by(Income) %>% 
+  summarise(count= n())
+```
+
+
+
+```{r}
+grid.arrange(
+  airport %>% 
+    ggplot(aes(x = Airport, y = count)) +
+    geom_bar(stat = 'identity'),
+  airline %>% 
+    ggplot(aes(x = Airline, y = count)) +
+    geom_bar(stat = 'identity'),
+  gender %>% 
+    ggplot(aes(x = Gender, y = count)) +
+    geom_bar(stat = 'identity'),
+  nationality %>% 
+    ggplot(aes(x = Nationality, y = count)) +
+    geom_bar(stat = 'identity'),
+  trippurpose %>% 
+    ggplot(aes(x = TripPurpose, y = count)) +
+    geom_bar(stat = 'identity'),
+  provinceresidence %>% 
+    ggplot(aes(x = ProvinceResidence, y = count)) +
+    geom_bar(stat = 'identity'),
+  grouptravel %>% 
+    ggplot(aes(x = GroupTravel, y = count)) +
+    geom_bar(stat = 'identity'),
+  freqdes %>% 
+    ggplot(aes(x = FrequentFlightDestination, y = count)) +
+    geom_bar(stat = 'identity'),
+  destination %>% 
+    ggplot(aes(x = Destination, y = count)) +
+    geom_bar(stat = 'identity'),
+  departuretime %>% 
+    ggplot(aes(x = DepartureTime, y = count)) +
+    geom_bar(stat = 'identity'),
+  seatclass %>% 
+    ggplot(aes(x = SeatClass, y = count)) +
+    geom_bar(stat = 'identity'),
+  modetrans %>% 
+    ggplot(aes(x = ModeTransport, y = count)) +
+    geom_bar(stat = 'identity'),
+  occupation %>% 
+    ggplot(aes(x = Occupation, y = count)) +
+    geom_bar(stat = 'identity'),
+  income %>% 
+    ggplot(aes(x = Income, y = count)) +
+    geom_bar(stat = 'identity'),
+  ncol = 4
+)
+```
+
+
+
+## 5.1 Categorical Variables with Airport
+```{r}
+# Categorical Variables - Airport
+# Airports distrubution is equivalent
+grid.arrange(
+  acs_out %>% 
+    ggplot(aes(Airline,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Gender,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Nationality, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(TripPurpose, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ProvinceResidence, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(GroupTravel,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(FrequentFlightDestination,fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Destination, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(DepartureTime, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(SeatClass, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ModeTransport, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Occupation, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Income, fill = Airport)) +
+    geom_bar(position = "dodge"),
+  ncol = 3
+)
+```
+
++ Observations on the categorical variables (airport):
+  + Variable Gender, Group Travel, SeatClass have similar pattern(counts) on both airports;
+  + We can remove Gender, Group Travel, SeatClass from dependent variables;
+  
+  + Korean Airline and Asiana have the similiar pattern on the choice of airports; (Regroup??)
+  + Regroup Nationality into Korean and Foreign;
+  + Regroup 2,3,4 in TripPurpose as they share similar pattern;
+  + Regroup destination which has similar patterns? (1-2;3-4)
+  + Regroup Occupation with induviduals with/without income;
+
+### 5.11 Regroup Variables after Visualization -- Airport Model
+```{r}
+# drop variables
+# Airport Model
+acs_ap <- subset(acs_out, select = -c(Gender, GroupTravel, SeatClass))
+```
+
+
+```{r}
+# Regroup
+acs_ap[2] <- ifelse(acs_ap[2] == 1, 'Korean',
+                    ifelse(acs_ap[2] == 2, 'Korean',
+                           ifelse(acs_ap[2] == 3, 'LCC', 'Foreign')))
+
+acs_ap[4] <- ifelse(acs_ap[4] == 1, 'Korean', 'Foreign')
+
+acs_ap[8] <- ifelse(acs_ap[8] == 1, 'City',
+                    ifelse(acs_ap[8] == 2, 'City',
+                           ifelse(acs_ap[8] == 3, 'City', 'Other')))
+
+acs_ap[17] <- ifelse(acs_ap[17] == 1, 'w/income',
+                     ifelse(acs_ap[17] == 2, 'w/income',
+                            ifelse(acs_ap[17] == 3, 'w/income',
+                                   ifelse(acs_ap[17] == 4, 'w/income',
+                                          ifelse(acs_ap[17] == 5, 'w/income',
+                                                 ifelse(acs_ap[17] == 6, 'w/income',
+                                                       ifelse(acs_ap[17] == 7, 'w/income',
+                                                              ifelse(acs_ap[17] == 12, 'Other', 'no income'))))))))
+
+acs_ap[15] <- ifelse(acs_ap[15] == 1, 'Personal',
+                     ifelse(acs_ap[15] == 2, 'Personal',
+                            ifelse(acs_ap[15] == 9, 'Personal',
+                                   ifelse(acs_ap[15] == 10, 'Air',
+                                          ifelse(acs_ap[15] == 11, 'Other', 'Public')))))
+
+acs_ap[11] <- ifelse(acs_ap[11] == 1, 'China',
+                    ifelse(acs_ap[11] == 2, 'Japan', 'Other'))
+
+acs_ap[5] <- ifelse(acs_ap[5] == 1, 'Leisure','Other')
+
+acs_ap[10] <- ifelse(acs_ap[10] == 1, 'SA', 
+                     ifelse(acs_ap[10] == 2, 'China',
+                            ifelse(acs_ap[10] == 3, 'Japan', 'Others')))
+```
+
+
+## 5.2 Categorical Variables with Airline
+```{r}
+# Categorical Variables - Airline
+grid.arrange(
+  acs_out %>% 
+    ggplot(aes(Airport,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Gender,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Nationality, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(TripPurpose, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ProvinceResidence, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(GroupTravel,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(FrequentFlightDestination,fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Destination, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(DepartureTime, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(SeatClass, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(ModeTransport, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>%  
+    ggplot(aes(Occupation, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  acs_out %>% 
+    ggplot(aes(Income, fill = Airline)) +
+    geom_bar(position = "dodge"),
+  ncol = 3
+)
+```
+
++ Observation from the data:
+  + Remove GroupTravel;
+  
+  + Regroup SeatClass;
+  + Regroup TripPurpose;
+  + Regroup Nationality;
+
+### 5.21 Regroup Variables after Visualization -- Airline Model
+```{r}
+# drop variables
+# Airport Model
+acs_al <- subset(acs_out, select = -c(GroupTravel))
+```
+
+
+```{r}
+# Regroup
+acs_al[5] <- ifelse(acs_al[5] == 1, 'Korean', 'Foreign')
+
+acs_al[6] <- ifelse(acs_al[6] == 1, 'Leisure','Other')
+
+acs_al[9] <- ifelse(acs_al[9] == 1, 'City', 
+                     ifelse(acs_al[9] == 2, 'City',
+                            ifelse(acs_al[9] == 3, 'City', 'Others')))
+
+acs_al[11] <- ifelse(acs_al[11] == 1, 'SA', 
+                     ifelse(acs_al[11] == 2, 'China',
+                            ifelse(acs_al[11] == 3, 'Japan', 'Others')))
+
+acs_al[19] <- ifelse(acs_al[19] == 1, 'w/income',
+                     ifelse(acs_al[19] == 2, 'w/income',
+                            ifelse(acs_al[19] == 3, 'w/income',
+                                   ifelse(acs_al[19] == 4, 'w/income',
+                                          ifelse(acs_al[19] == 5, 'w/income',
+                                                 ifelse(acs_al[19] == 6, 'w/income',
+                                                       ifelse(acs_al[19] == 7, 'w/income',
+                                                              ifelse(acs_al[19] == 12, 'Other', 'no income'))))))))
+
+acs_al[12] <- ifelse(acs_al[12] == 1, 'China',
+                    ifelse(acs_al[12] == 2, 'Japan', 'Other'))
+
+
+acs_al[17] <- ifelse(acs_al[17] == 1, 'Personal',
+                     ifelse(acs_al[17] == 2, 'Personal',
+                            ifelse(acs_al[17] == 9, 'Personal',
+                                   ifelse(acs_al[17] == 10, 'Air',
+                                          ifelse(acs_al[17] == 11, 'Other', 'Public')))))
+
+acs_al[14] <- ifelse(acs_al[14] == 1, 'Economic','Other')
+
+```
+
+
+
+## 5.3 Numerical Variable
+```{r}
+# Numerical
+grid.arrange(
+  acs_out %>% 
+    ggplot(aes(TripDuration)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(Age)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(FlyingCompanion)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(NoTripsLastYear)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(Airfare)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(NoTransport)) +
+    geom_histogram(),
+  acs_out %>% 
+    ggplot(aes(AccessTime)) +
+    geom_histogram(),
+  ncol = 2
+)
+```
+  
+
+## 5.31 Correlation Between Numerical Variables
+```{r}
+# Correlation plot
+cor_plot <- subset(acs_out, select = c(TripDuration, FlyingCompanion, NoTripsLastYear, NoTransport, Airfare, AccessTime))
+cor_plot %>%
+  ggpairs()
+```
+  
+  
++ Observations on the data:
+  + No Multicollinearity;
+  
+# 6. Logistic Modelling
+## 6.1 Airport 
+### 6.11 Train - Test (70/30)
+```{r}
+# Reference Category
+acs_ap[1] <- ifelse(acs_ap[1] == 1, 'ICN','GMP')
+acs_ap$Airport <- as.factor(acs_ap$Airport)
+contrasts(acs_ap$Airport) # ICN = 1, GMP = 0
+
+# Sampling 70/30
+library(caret) 
+set.seed(666) 
+trainrows<-createDataPartition(acs_ap$Airport, p = 0.7, list=FALSE) 
+train_set_ap<-acs_ap[trainrows,] 
+test_set_ap<-acs_ap[-trainrows,]
+
+# write.csv(train_set_ap, file = "train_airport.csv")
+# write.csv(test_set_ap, file = "test_airport.csv")
+```
+
+### 6.12 Original Model for Airport with All Variables
+```{r}
+# Logistic 1
+# first model -- before ANOVA
+ap_logit_1 <- glm(Airport ~., data = train_set_ap, family=binomial("logit"))
+print(ap_logit_1)
+summary(ap_logit_1)
+```
+
+### 6.13 Stepwide Model
+```{r}
+null = glm(Airport ~ 1, data = train_set_ap, family=binomial("logit"))
+full = glm(Airport ~., data = train_set_ap, family=binomial("logit"))
+step(null, scope = list(lower=null,upper=full),
+     direction="both", criterion = "BIC")
+```
+
+### 6.14 Anova Analysis
+```{r}
+anova(ap_logit_1, test="Chisq")
+```
+
+### 6.15 VIF to check Multicollinearity
+```{r}
+#install.packages("car")
+library(car)
+vif(ap_logit_1)
+```
+
+### 6.15 R-Square
+```{r}
+library(pscl)
+pR2(ap_logit_1)
+```
+
+### 6.14 Confusion Matrix
+```{r}
+# Prediction - Training
+predicted <- plogis(predict(ap_logit_1, train_set_ap))
+pred <- ifelse(predicted > 0.5, "ICN", "GMP")
+pred <- as.factor(pred)
+confusionMatrix(train_set_ap$Airport, pred)
+```
+
+```{r}
+# Prediction - Testing
+predicted <- plogis(predict(ap_logit_1, test_set_ap))
+pred <- ifelse(predicted > 0.5, "ICN", "GMP")
+pred <- as.factor(pred)
+confusionMatrix(test_set_ap$Airport, pred)
+```
+
+### 6.16 K-fold Cross Validation
+```{r}
+train_control <- trainControl(method='cv', number = 4)
+model <- train(Airport ~., data = train_set_ap, trControl = train_control, method="glm", family="binomial")
+pred_k <- predict(model, newdata=test_set_ap)
+confusionMatrix(data=pred_k, test_set_ap$Airport)
+```
+
+### 6.17 Airport Model - Modified
+```{r}
+# Airport Model - Modified
+ap_logit_2 <- glm(Airport ~ Destination + DepartureTime + Income + 
+    ProvinceResidence + AccessTime + Nationality + Occupation + 
+    Airline + FrequentFlightDestination + ModeTransport + FlyingCompanion + 
+    NoTransport, data = train_set_ap, family=binomial("logit"))
+summary(ap_logit_2)
+```
+
+### 6.18 R-Square
+```{r}
+library(pscl)
+pR2(ap_logit_2)
+```
+
+### 6.19 Confusion Matrix
+```{r}
+# Prediction - Training
+predicted <- plogis(predict(ap_logit_2, train_set_ap))
+pred <- ifelse(predicted > 0.5, "ICN", "GMP")
+pred <- as.factor(pred)
+confusionMatrix(train_set_ap$Airport, pred)
+```
+
+
+```{r}
+# Prediction - Testing
+predicted <- plogis(predict(ap_logit_2, test_set_ap))
+pred <- ifelse(predicted > 0.5, "ICN", "GMP")
+pred <- as.factor(pred)
+confusionMatrix(test_set_ap$Airport, pred)
+```
+
+
+### 6.16 K-fold Cross Validation - Modifed
+```{r}
+train_control <- trainControl(method='cv', number = 4)
+model <- train(Airport ~ Destination + DepartureTime + Income + 
+    ProvinceResidence + AccessTime + Nationality + Occupation + Airline + FrequentFlightDestination + ModeTransport + FlyingCompanion + 
+    NoTransport, data = train_set_ap, trControl = train_control, method="glm", family="binomial")
+pred_k <- predict(model, newdata=test_set_ap)
+confusionMatrix(data=pred_k, test_set_ap$Airport)
+```
+
+
+## 6.2 Airline
+### 6.21 Train - Test (70/30)
+```{r}
+acs_al$Airline <- relevel(acs_al$Airline, ref=1)
+
+# Sampling 70/30
+library(caret) 
+set.seed(666) 
+
+trainrows_al<-createDataPartition(acs_al$Airline, p = 0.7, list=FALSE) 
+train_set_al<-acs_al[trainrows_al,] 
+test_set_al<-acs_al[-trainrows_al,]
+
+write.csv(train_set_al, file = "train_airline.csv")
+write.csv(test_set_al, file = "test_airline.csv")
+```
+
+
+### 6.22 Original Model - Airline
+```{r}
+# Multinomial Logistic 1
+# first model -- before ANOVA
+#install.packages('nnet')
+library(nnet)
+
+al_logit_1 <- multinom(Airline ~., data = train_set_al)
+print(al_logit_1)
+summary(al_logit_1)
+```
+
+
+### 6.23 Original Model - Coefficients
+```{r}
+summary(al_logit_1)$coefficients
+```
+
+### 6.24 Original Model - SE
+```{r}
+summary(al_logit_1)$standard.errors
+```
+
+### 6.25 Original Model - P Value
+```{r}
+zvalues <- summary(al_logit_1)$coefficients / summary(al_logit_1)$standard.errors
+
+pnorm(abs(zvalues), lower.tail=FALSE)*2
+```
+
+
+### 6.29 Original Model Stepwise
+```{r}
+null_al = multinom(Airline ~ 1, data = train_set_al)
+full_al = multinom(Airline ~., data = train_set_al)
+step(null_al, scope = list(lower=null_al,upper=full_al),
+     direction="both", criterion = "BIC")
+```
+
+### 6.27 Original Model R-Square
+```{r}
+library(pscl)
+pR2(al_logit_1)
+```
+
+### 6.28 Confusion Matrix
+```{r}
+# Prediction - Training
+predicted_al <- predict (al_logit_1, train_set_al, "probs")
+
+pred_al <- predict(al_logit_1, train_set_al)
+
+confusionMatrix(train_set_al$Airline, pred_al)
+```
+
+
+```{r}
+# Prediction - Testing 
+predicted_al <- predict (al_logit_1, test_set_al, "probs")
+
+pred_al <- predict(al_logit_1, test_set_al)
+
+confusionMatrix(test_set_al$Airline, pred_al)
+```
+
+
+### 6.28 Original Model K-fold Cross Validation
+```{r}
+train_control <- trainControl(method='cv', number = 4)
+model_al <- train(Airline ~., data = train_set_al, trControl = train_control, method="multinom")
+pred_k_al <- predict(model_al, newdata=test_set_al)
+confusionMatrix(data=pred_k_al, test_set_al$Airline)
+```
+
+
+## 6.3 Airline Modified Model
+```{r}
+al_logit_2 <- multinom(Airline ~ Destination + Airfare + Airport + 
+    DepartureTime + NoTransport + TripDuration + FlyingCompanion + 
+    NoTripsLastYear + FrequentFlightDestination, data = train_set_al)
+print(al_logit_2)
+summary(al_logit_2)
+```
+
+
+```{r}
+summary(al_logit_2)$coefficients
+```
+
+
+```{r}
+summary(al_logit_2)$standard.errors
+```
+
+
+```{r}
+zvalues <- summary(al_logit_2)$coefficients / summary(al_logit_2)$standard.errors
+
+pnorm(abs(zvalues), lower.tail=FALSE)*2
+```
+
+
+### 6.31 Confusion Matrix
+```{r}
+# Prediction - Training
+predicted_al <- predict (al_logit_2, train_set_al, "probs")
+
+pred_al <- predict(al_logit_2, train_set_al)
+
+confusionMatrix(train_set_al$Airline, pred_al)
+```
+
+
+
+```{r}
+# Prediction
+predicted_al <- predict (al_logit_2, test_set_al, "probs")
+
+pred_al <- predict(al_logit_2, test_set_al)
+
+confusionMatrix(test_set_al$Airline, pred_al)
+```
+
+### 6.31 R Squared
+```{r}
+library(pscl)
+pR2(al_logit_2)
+```
+
+### 6.32 K-folder cross validation for Airline
+```{r}
+train_control <- trainControl(method='cv', number = 4)
+model_al <- train(Airline ~ Destination + Airfare + ProvinceResidence + 
+    Airport + NoTransport + FrequentFlightDestination + DepartureTime + 
+    TripDuration + NoTripsLastYear + FlyingCompanion, data = train_set_al, trControl = train_control, method="multinom")
+pred_k_al <- predict(model_al, newdata=test_set_al)
+confusionMatrix(data=pred_k_al, test_set_al$Airline)
+```
+
+
+
+
+
+
+
